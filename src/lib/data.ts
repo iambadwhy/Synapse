@@ -1,5 +1,19 @@
 import { Cluster, Capture } from './types';
 
+/*
+ * Seed persona: Mira, 2nd-year MFA (Design & Motion).
+ * She's finishing a thesis on kinetic typography while running a paid
+ * launch-comms internship for an indie skincare brand's Q2 relaunch,
+ * and posting on TikTok + Substack on the side.
+ * Key relationships: Maya (@mayakmakes, collaborator), Prof. Heron (thesis
+ * advisor), Devika (client creative director), Jordan (engineering lead).
+ *
+ * Every capture below is something Mira actually threw into Synapse at some
+ * point this week — voice memos on the walk home, links from 1am tab diving,
+ * a photo of a Bauhaus spread, a line she hit mid-shower. The synthesis and
+ * next-step copy for each cluster is what Synapse surfaced back to her.
+ */
+
 export const CLUSTERS: Cluster[] = [
   {
     id: 'proj-a',
@@ -7,35 +21,38 @@ export const CLUSTERS: Cluster[] = [
     label: 'Thesis',
     category: 'project',
     color: '#6366F1',
-    description: 'Portfolio thesis exploring kinetic typography and motion design lineage.',
+    description:
+      'MFA thesis: kinetic typography as rhetorical compression. Saul Bass lineage, Bauhaus grid structure, motion as argument.',
     synthesis:
-      '3 captures reference Saul Bass across separate sessions. Thesis argument is converging: kinetic type as rhetorical compression. Missing a structured argument map and first draft outline.',
+      '4 captures converge on the same thesis: kinetic type compresses narrative into rhythm. Saul Bass appears in 3 separate sessions — he is your anchor case. Prof. Heron told you to narrow to one medium; you have not resolved title sequences vs. motion graphics yet. Argument map is still in your head.',
     nextStep:
-      'Build a 3-slide argument map: kinetic type → cognitive rhythm → viewer retention. Anchor with Saul Bass as the primary case study.',
+      'Draft a 3-slide argument map before Thursday\'s mentor sync: kinetic type → cognitive rhythm → viewer retention. Pick title sequences as the medium. Anchor with Saul Bass.',
   },
   {
     id: 'proj-b',
-    name: 'Internship — Launch Comms',
-    label: 'Launch Comms',
+    name: 'Lumen — Q2 Launch Comms',
+    label: 'Lumen',
     category: 'project',
     color: '#8B5CF6',
-    description: 'Freelance internship brief — own launch comms and visual tone for Q2 product release.',
+    description:
+      'Freelance internship: own the Q2 relaunch comms for Lumen Skincare. Brand refresh + launch timeline + WCAG-clean system.',
     synthesis:
-      '4 recent captures flag a Q2 brand refresh plus a WCAG compliance gap in the current design system. Client confirmed the pastel palette is being scrapped. No launch comms timeline drafted yet.',
+      '5 captures flag the same two risks: the pastel palette Devika scrapped has a WCAG 3.0 contrast gap Jordan still has to scope, and there is no launch-comms timeline yet. You have 6 weeks to ship. Two tasks on this project share a Friday deadline — potential conflict.',
     nextStep:
-      'Draft a 6-week launch comms timeline. Schedule WCAG 3.0 compliance review at week 2. Send calendar invite to the client before end of week.',
+      'Draft a 6-week launch-comms timeline today. Put the WCAG 3.0 audit at week 2. Send Devika a calendar invite for a Friday review before EOD Wednesday.',
   },
   {
     id: 'proj-c',
-    name: 'Personal — Content Channel',
-    label: 'Content',
+    name: 'Channel — TikTok + Substack',
+    label: 'Channel',
     category: 'project',
     color: '#EC4899',
-    description: 'Personal TikTok + Substack channel — live and iterating.',
+    description:
+      'Personal channel: one TikTok a week, one Substack every other week. Design-for-designers POV.',
     synthesis:
-      'Content pipeline has 2 pending TikTok concepts and 1 Substack draft at ~40% completion. Last publish was 9 days ago — engagement drops after 10 days without posting. Thursday is the optimal window.',
+      'You have 2 unfilmed TikTok hooks and one Substack draft at 40%. Last publish was 9 days ago — your engagement historically drops past day 10. Thursday is your best publish window. The AI-vs-designers essay is the strongest draft but has no ending yet.',
     nextStep:
-      "Finish the Substack draft and schedule for Thursday. Batch-record both TikTok hooks this weekend while the studio light is good.",
+      'Finish the Substack ending tonight and queue for Thursday 9am. Batch-shoot both TikTok hooks Saturday morning while the studio light holds.',
   },
   {
     id: 'accessibility',
@@ -43,11 +60,12 @@ export const CLUSTERS: Cluster[] = [
     label: 'A11y',
     category: 'topic',
     color: '#3B82F6',
-    description: 'WCAG standards, contrast ratios, and inclusive design references.',
+    description:
+      'WCAG 3.0 / APCA references and open contrast questions across active projects.',
     synthesis:
-      'WCAG 3.0 contrast changes affect 3 components in the current design system. Two separate captures reference the same compliance gap from different angles.',
+      'WCAG 3.0\'s APCA replaces the 4.5:1 ratio entirely — affects 3 Lumen components directly. Two separate captures this week noticed the same issue from different angles, which means it is real, not a vibe.',
     nextStep:
-      'Audit the 3 affected DS components against WCAG 3.0 APCA contrast algorithm. Log findings in a shared doc with the engineering lead.',
+      'Audit the 3 affected Lumen components against APCA this week. Log findings in a shared doc with Jordan before the Friday client review.',
   },
   {
     id: 'tasks',
@@ -55,11 +73,12 @@ export const CLUSTERS: Cluster[] = [
     label: 'Tasks',
     category: 'topic',
     color: '#10B981',
-    description: 'Action items, deadlines, and to-dos across all projects.',
+    description:
+      'Action items with deadlines, pulled from across projects.',
     synthesis:
-      '3 open tasks detected. Oldest is 5 days stale. Two tasks share a Friday deadline — potential conflict.',
+      '3 open tasks. Oldest is 5 days stale. Two share a Friday EOD deadline — the Lumen moodboard and the mentor-sync prep deck. Sequencing matters: the moodboard unblocks Jordan, the deck unblocks you.',
     nextStep:
-      'Finalize the internship moodboard by EOD Friday. Block 2h on the calendar now to avoid the deadline conflict.',
+      'Finalize the Lumen moodboard by Thursday EOD so Jordan can scope Friday. Block 2h Thursday morning now, before the week fills.',
   },
   {
     id: 'people',
@@ -67,11 +86,12 @@ export const CLUSTERS: Cluster[] = [
     label: 'People',
     category: 'topic',
     color: '#F59E0B',
-    description: 'Collaborators, contacts, and follow-ups.',
+    description:
+      'Collaborators and contacts with open threads — Maya, Devika, Prof. Heron, Jordan.',
     synthesis:
-      'Maya (@mayakmakes) has not been followed up with since the initial collab mention 4 days ago. Mentor sync is overdue by 1 week.',
+      'Maya (@mayakmakes) — you flagged a June collab 4 days ago and never sent the DM. Prof. Heron — mentor sync is 1 week overdue. Devika — no reply on the palette decision since Monday.',
     nextStep:
-      'Send Maya a 2-line DM about the June collab. Rebook the mentor sync for this week.',
+      'Send Maya a 2-line DM today with one concrete thing to collab on. Book the Heron sync for Thursday. Ping Devika to confirm the palette before the moodboard ships.',
   },
   {
     id: 'meetings',
@@ -79,128 +99,171 @@ export const CLUSTERS: Cluster[] = [
     label: 'Meetings',
     category: 'topic',
     color: '#64748B',
-    description: 'Syncs, calls, and scheduled sessions.',
+    description:
+      'Syncs, calls, and scheduled reviews — notes in, actions out.',
     synthesis:
-      "Last mentor sync referenced a pivotal direction change on the thesis — no follow-up action was captured.",
+      'Last mentor sync flagged a pivotal thesis narrowing — "one medium, not both" — and you captured it but never wrote up next-step bullets. That decision is still drifting.',
     nextStep:
-      'Write up 3 bullet points summarizing the thesis direction before the next mentor session.',
+      'Write a 3-bullet summary of the "one medium" decision before the next Heron sync. Decide: title sequences or motion graphics. No more both.',
   },
 ];
+
+/*
+ * ts utility: make the feed feel "today"-fresh without drifting over time.
+ * Everything below is relative to the current render timestamp.
+ */
+const minsAgo = (m: number) => new Date(Date.now() - 1000 * 60 * m);
 
 export const INITIAL_CAPTURES: Capture[] = [
   {
     id: 'c1',
     content:
-      'WCAG 3.0 draft dropped — need to check new APCA contrast requirements against our design system components. The old 4.5:1 ratio is being replaced entirely.',
+      'WCAG 3.0 draft dropped — APCA replaces the 4.5:1 ratio entirely. Need to audit the Lumen button, toast, and chip against the new algorithm before Friday.',
     type: 'text',
     clusterId: 'accessibility',
-    inferenceReason: '"WCAG" + "contrast" + "design system" matched → Accessibility topic',
-    timestamp: new Date(Date.now() - 1000 * 60 * 12),
-    tags: ['#WCAG', '#accessibility', '#design-system'],
+    inferenceReason:
+      '"WCAG" + "APCA" + Lumen component names → Accessibility topic (cross-linked to Lumen project)',
+    timestamp: minsAgo(12),
+    tags: ['#WCAG', '#APCA', '#lumen-ds'],
     status: 'clustered',
   },
   {
     id: 'c2',
     content:
-      "Client wants brand refresh locked before Q2 kickoff. Pastel palette feels off — needs more edge, higher contrast, something that reads on dark backgrounds.",
+      "Devika wants the pastel palette gone before the Q2 kickoff. She said 'edge, contrast, reads on dark' — almost verbatim the brief we rejected in round one. Irony.",
     type: 'voice',
     clusterId: 'proj-b',
-    inferenceReason: '"brand refresh" + "client" + "Q2" → Project B: Launch Comms',
-    timestamp: new Date(Date.now() - 1000 * 60 * 35),
-    tags: ['#brand', '#Q2', '#client'],
+    inferenceReason:
+      'Client entity (Devika) + "palette" + "Q2" brand signal → Lumen: Q2 Launch Comms',
+    timestamp: minsAgo(35),
+    tags: ['#devika', '#palette', '#Q2'],
     status: 'clustered',
   },
   {
     id: 'c3',
     content:
-      "Saul Bass didn't just design titles — he compressed narrative. Each sequence is an argument. That's the thesis: kinetic type as an act of rhetorical compression.",
+      "Bass didn't design titles. He compressed narrative. Every sequence is an argument about pace. That's the whole thesis in one line — kinetic type as rhetorical compression.",
     type: 'text',
     clusterId: 'proj-a',
-    inferenceReason: '"Saul Bass" + "kinetic type" + "thesis" → Project A: Thesis',
-    timestamp: new Date(Date.now() - 1000 * 60 * 58),
-    tags: ['#motion', '#thesis', '#saul-bass'],
+    inferenceReason:
+      '"Bass" + "kinetic" + "thesis" + argument framing → Thesis project',
+    timestamp: minsAgo(58),
+    tags: ['#saul-bass', '#thesis', '#argument'],
     status: 'clustered',
   },
   {
     id: 'c4',
     content:
-      'TikTok hook: "I redesigned my studio using only thrift finds — here\'s the system that actually keeps it organized." Short, scroll-stopper, service-y.',
+      'TikTok hook: "I designed my whole studio around 3 thrifted objects and the grid finally made sense." 8 seconds. One handheld pan. Trust the hook.',
     type: 'text',
     clusterId: 'proj-c',
-    inferenceReason: '"TikTok hook" + social content format detected → Project C: Content',
-    timestamp: new Date(Date.now() - 1000 * 60 * 90),
-    tags: ['#tiktok', '#content', '#hook'],
+    inferenceReason:
+      'Platform keyword (TikTok) + hook format + duration signal → Channel project',
+    timestamp: minsAgo(90),
+    tags: ['#tiktok', '#hook', '#studio'],
     status: 'clustered',
   },
   {
     id: 'c5',
-    content: "Draft: Why AI tools won't replace designers (they'll replace the ones who ignore them)",
+    content:
+      "Draft: Why AI tools won't replace designers (they'll replace the ones who ignore them)",
     type: 'link',
     clusterId: 'proj-c',
-    inferenceReason: 'Substack editorial format + "AI" + "designers" → Project C: Content',
-    timestamp: new Date(Date.now() - 1000 * 60 * 120),
-    tags: ['#substack', '#AI', '#draft'],
+    inferenceReason:
+      'Substack domain + editorial headline pattern + "designers" → Channel project',
+    timestamp: minsAgo(120),
+    tags: ['#substack', '#AI', '#draft-40pct'],
     status: 'clustered',
-    linkUrl: 'https://substack.com',
-    linkTitle: "Draft: Why AI tools won't replace designers (they'll replace the ones who ignore them)",
+    linkUrl: 'https://mirawrites.substack.com/p/ai-designers-draft',
+    linkTitle:
+      "Why AI tools won't replace designers (they'll replace the ones who ignore them)",
     linkDomain: 'substack.com',
   },
   {
     id: 'c6',
     content:
-      'Reach out to Maya @mayakmakes about a design collab for the June content push. She does brand-meets-editorial — exactly the aesthetic crossover I need.',
+      'Reach out to Maya @mayakmakes about the June collab — brand-meets-editorial is exactly the crossover the Lumen teaser needs. She owes me a coffee anyway.',
     type: 'text',
     clusterId: 'people',
-    inferenceReason: 'People entity (@mayakmakes) + collaboration intent → People',
-    timestamp: new Date(Date.now() - 1000 * 60 * 180),
-    tags: ['#collab', '#june', '#people'],
+    inferenceReason:
+      'People entity (@mayakmakes) + collab intent + project cross-reference → People',
+    timestamp: minsAgo(180),
+    tags: ['#maya', '#collab', '#june'],
     status: 'clustered',
   },
   {
     id: 'c7',
     content:
-      'Finalize moodboard for the internship brand refresh by Friday EOD. Engineering lead needs it to scope the DS component audit.',
+      'Finalize the Lumen moodboard by Friday EOD. Jordan needs it to scope the DS component audit — blocking her means blocking the WCAG pass.',
     type: 'text',
     clusterId: 'tasks',
-    inferenceReason: 'Action item + deadline ("by Friday EOD") → Tasks cluster',
-    timestamp: new Date(Date.now() - 1000 * 60 * 240),
-    tags: ['#deadline', '#moodboard', '#tasks'],
+    inferenceReason:
+      'Action phrasing ("finalize") + hard deadline ("Friday EOD") + blocker note → Tasks',
+    timestamp: minsAgo(240),
+    tags: ['#deadline', '#moodboard', '#jordan'],
     status: 'clustered',
   },
   {
     id: 'c8',
     content:
-      'Bauhaus grid experiments — typography as structure, not decoration. The grid IS the argument. Perfect thesis reference for the spatial composition section.',
+      'Bauhaus spread — typography as structure, not decoration. The grid IS the argument. Put this in the thesis spatial-composition section.',
     type: 'image',
     clusterId: 'proj-a',
-    inferenceReason: '"Bauhaus" + "typography" + image format → Project A: Thesis',
-    timestamp: new Date(Date.now() - 1000 * 60 * 300),
-    tags: ['#bauhaus', '#typography', '#grid'],
+    inferenceReason:
+      '"Bauhaus" + "grid" + "thesis" + image modality → Thesis project',
+    timestamp: minsAgo(300),
+    tags: ['#bauhaus', '#grid', '#reference'],
     status: 'clustered',
   },
   {
     id: 'c9',
     content:
-      'Competitor landing page — their information hierarchy is cleaner than ours. Worth dissecting the fold structure and how they handle the pricing section.',
+      "Linear's pricing page — look at the fold structure. Section hierarchy is 3 levels not 4, and the price anchor sits *above* the feature list, not below. Worth stealing for the Lumen site.",
     type: 'link',
     clusterId: 'proj-b',
-    inferenceReason: '"competitor" + "landing page" + internship context → Project B: Launch Comms',
-    timestamp: new Date(Date.now() - 1000 * 60 * 420),
-    tags: ['#research', '#competitor', '#UX'],
+    inferenceReason:
+      'Competitor reference + "Lumen site" context + IA language → Lumen project',
+    timestamp: minsAgo(420),
+    tags: ['#research', '#linear', '#IA'],
     status: 'clustered',
-    linkUrl: 'https://linear.app',
-    linkTitle: 'Linear — Project management for modern software teams',
+    linkUrl: 'https://linear.app/pricing',
+    linkTitle: 'Linear — Pricing',
     linkDomain: 'linear.app',
   },
   {
     id: 'c10',
     content:
-      "Mentor sync: thesis direction feels too broad. She said narrow to one medium — either title sequences OR motion graphics, not both. Kinetic type as the binding thread.",
+      "Heron sync: thesis is too broad. Pick one medium — title sequences OR motion graphics, not both. Kinetic type is the binding thread, not the subject.",
     type: 'voice',
     clusterId: 'meetings',
-    inferenceReason: '"mentor sync" + note-taking pattern → Meetings cluster',
-    timestamp: new Date(Date.now() - 1000 * 60 * 600),
-    tags: ['#mentor', '#thesis', '#direction'],
+    inferenceReason:
+      'Advisor entity (Heron) + "sync" pattern + decision language → Meetings',
+    timestamp: minsAgo(600),
+    tags: ['#heron', '#thesis', '#decision'],
+    status: 'clustered',
+  },
+  {
+    id: 'c11',
+    content:
+      'Second Substack idea: "The grid is not neutral." A 600-word takedown of how the 12-col grid encodes a specific era\'s idea of order. Pair with the Bauhaus image above.',
+    type: 'text',
+    clusterId: 'proj-c',
+    inferenceReason:
+      'Substack format + cross-reference to earlier capture (Bauhaus) → Channel',
+    timestamp: minsAgo(720),
+    tags: ['#substack', '#grid', '#pitch'],
+    status: 'clustered',
+  },
+  {
+    id: 'c12',
+    content:
+      'Mentor sync prep deck — 3 slides max. Slide 1: "Here\'s the narrow cut." Slide 2: the Bass case. Slide 3: what I\'ll ship by the next sync. Not a status update, a commitment.',
+    type: 'text',
+    clusterId: 'tasks',
+    inferenceReason:
+      'Action + hard container ("3 slides") + upcoming meeting reference → Tasks',
+    timestamp: minsAgo(1440),
+    tags: ['#deck', '#heron', '#prep'],
     status: 'clustered',
   },
 ];
@@ -215,53 +278,60 @@ export const CLUSTER_ORDER = [
   'meetings',
 ];
 
+/*
+ * Regex router — mocks a production LLM classifier.
+ * Order matters: most specific signals first, falls back to the most active project.
+ */
 export function inferCluster(content: string): string {
   const lower = content.toLowerCase();
   if (/wcag|apca|contrast|a11y|accessibility|aria/.test(lower)) return 'accessibility';
-  if (/client|launch|brand|comms|q2|internship|competitor|refresh|campaign/.test(lower)) return 'proj-b';
-  if (/thesis|kinetic|motion|bauhaus|saul|typeface|typograph|font|animate/.test(lower)) return 'proj-a';
-  if (/tiktok|substack|instagram|reel|content|post|publish|hook|caption/.test(lower)) return 'proj-c';
-  if (/meet|sync|call|session|mentor|standup|debrief/.test(lower)) return 'meetings';
-  if (/task|todo|deadline|by friday|by monday|eod|finish|finalize|complete/.test(lower)) return 'tasks';
-  if (/@|reach out|contact|collab|dm|email|follow.?up/.test(lower)) return 'people';
-  return 'proj-b'; // default to most active project
+  if (/lumen|devika|jordan|client|launch|q2|refresh|campaign|comms|linear/.test(lower)) return 'proj-b';
+  if (/thesis|heron|kinetic|motion|bauhaus|bass|typeface|typograph|grid/.test(lower)) return 'proj-a';
+  if (/tiktok|substack|instagram|reel|channel|hook|caption|publish|essay|draft/.test(lower)) return 'proj-c';
+  if (/heron|mentor|sync|meet|call|standup|debrief|review\b/.test(lower)) return 'meetings';
+  if (/task|todo|deadline|by friday|by monday|eod|finalize|finish|complete|block\s+\dh/.test(lower)) return 'tasks';
+  if (/maya|@|reach out|contact|collab|dm|email|follow.?up/.test(lower)) return 'people';
+  return 'proj-b'; // Lumen is the most active project — sensible default
 }
 
 export function getInferenceReason(content: string, clusterId: string): string {
-  const lower = content.toLowerCase();
   const reasons: Record<string, string[]> = {
     'proj-a': [
-      '"motion" + "type" keywords → Thesis project context',
-      'Typography/motion reference → Project A: Thesis',
-      'Saul Bass / Bauhaus signal → Project A cluster',
+      '"thesis" + motion/type keywords → Thesis project',
+      'Saul Bass / Bauhaus reference → Thesis project',
+      'Kinetic-type argument language → Thesis project',
     ],
     'proj-b': [
-      '"launch" + "brand" → Internship: Launch Comms',
-      '"client" intent signal → Project B cluster',
-      'Comms / campaign pattern → Project B: Launch Comms',
+      'Lumen entity or Devika reference → Lumen launch comms',
+      'Client / Q2 / launch signal → Lumen project',
+      'Competitor-research pattern scoped to Lumen → Lumen project',
     ],
     'proj-c': [
-      'Social content format detected → Personal Channel',
-      'Platform keyword (TikTok/Substack) → Project C',
-      'Publishing / content intent → Project C cluster',
+      'TikTok / Substack platform keyword → Channel project',
+      'Hook or essay format detected → Channel project',
+      'Publishing cadence reference → Channel project',
     ],
     accessibility: [
-      'WCAG / contrast keyword → Accessibility topic',
-      'A11y standards reference → Accessibility cluster',
+      'WCAG / APCA keyword → Accessibility topic',
+      'Contrast / a11y reference → Accessibility topic',
     ],
     tasks: [
-      'Action item pattern detected → Tasks',
-      'Deadline language ("by Friday") → Tasks cluster',
+      'Action verb + hard deadline ("by Friday EOD") → Tasks',
+      'Commitment language with time-box → Tasks',
     ],
     people: [
-      'People entity or @mention → People cluster',
-      'Collaboration intent detected → People',
+      'People entity or @mention → People topic',
+      'Collaboration or follow-up intent → People topic',
     ],
     meetings: [
-      'Sync / session pattern → Meetings cluster',
-      '"mentor" + note-taking format → Meetings',
+      'Advisor / sync / review pattern → Meetings topic',
+      'Decision-capture format typical of sync notes → Meetings topic',
     ],
   };
   const list = reasons[clusterId] || ['Semantic similarity to existing cluster'];
-  return list[Math.floor(Math.random() * list.length)];
+  // Deterministic selection so the shown reason is stable across renders.
+  const idx = Math.abs(
+    content.split('').reduce((acc, ch) => (acc * 31 + ch.charCodeAt(0)) | 0, 0)
+  ) % list.length;
+  return list[idx];
 }

@@ -110,6 +110,7 @@ export function CaptureInspector({
               </div>
               <button
                 onClick={onClose}
+                aria-label="Close capture inspector"
                 className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-colors shrink-0"
                 style={{ background: "rgba(255,255,255,0.05)", color: "var(--syn-slate)" }}
               >

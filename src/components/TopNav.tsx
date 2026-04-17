@@ -1,13 +1,15 @@
 "use client";
 
-import { LayoutGrid, Globe, Settings, Zap } from "lucide-react";
+import { LayoutGrid, Globe, Settings, Zap, Play, Loader2 } from "lucide-react";
 
 interface TopNavProps {
   view: "feed" | "map";
   onViewChange: (v: "feed" | "map") => void;
+  onRunDemo?: () => void;
+  demoRunning?: boolean;
 }
 
-export function TopNav({ view, onViewChange }: TopNavProps) {
+export function TopNav({ view, onViewChange, onRunDemo, demoRunning }: TopNavProps) {
   return (
     <header
       className="h-14 flex items-center px-5 gap-4 z-30 shrink-0"
@@ -66,14 +68,40 @@ export function TopNav({ view, onViewChange }: TopNavProps) {
         </div>
       </div>
 
-      {/* Right: settings */}
-      <button
-        className="transition-colors p-1.5 rounded-md cursor-pointer"
-        style={{ color: "var(--syn-slate)" }}
-        title="Settings"
-      >
-        <Settings className="w-4 h-4" />
-      </button>
+      {/* Right: demo + settings */}
+      <div className="flex items-center gap-1">
+        {onRunDemo && (
+          <button
+            onClick={onRunDemo}
+            disabled={demoRunning}
+            aria-label={demoRunning ? "Demo running" : "Run demo capture sequence"}
+            title={demoRunning ? "Demo running…" : "Run a 3-capture demo"}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[11px] font-medium transition-colors cursor-pointer disabled:cursor-not-allowed"
+            style={{
+              background: demoRunning
+                ? "rgba(99,102,241,0.18)"
+                : "rgba(99,102,241,0.10)",
+              color: demoRunning ? "#A5B4FC" : "var(--syn-indigo)",
+              border: "1px solid rgba(99,102,241,0.25)",
+            }}
+          >
+            {demoRunning ? (
+              <Loader2 className="w-3 h-3 animate-spin" />
+            ) : (
+              <Play className="w-3 h-3" fill="currentColor" strokeWidth={0} />
+            )}
+            {demoRunning ? "Running…" : "Demo"}
+          </button>
+        )}
+        <button
+          aria-label="Settings"
+          className="transition-colors p-1.5 rounded-md cursor-pointer"
+          style={{ color: "var(--syn-slate)" }}
+          title="Settings"
+        >
+          <Settings className="w-4 h-4" />
+        </button>
+      </div>
     </header>
   );
 }

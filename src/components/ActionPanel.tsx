@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { Cluster, Capture } from "@/lib/types";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -31,6 +32,54 @@ const TYPE_ICONS = {
   voice: Mic,
 };
 
+/**
+ * useTypewriter — streams a target string char-by-char over `durationMs`.
+ * Resets whenever `text` changes, so re-opening the panel against a different
+ * cluster replays the effect. Respects prefers-reduced-motion (renders full
+ * text instantly if the user has it enabled).
+ */
+function useTypewriter(text: string, durationMs = 900) {
+  // Reset revealed count when the target text changes, using the
+  // "derive-state-from-props" pattern so we never call setState inside
+  // an effect body.
+  const [chars, setChars] = useState(0);
+  const prevTextRef = useRef(text);
+  if (prevTextRef.current !== text) {
+    prevTextRef.current = text;
+    const reduce =
+      typeof window !== "undefined" &&
+      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    setChars(reduce || !text ? text.length : 0);
+  }
+
+  useEffect(() => {
+    if (!text) return;
+    if (chars >= text.length) return;
+    const reduce =
+      typeof window !== "undefined" &&
+      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) return;
+
+    const tickMs = 16;
+    const perTick = Math.max(1, Math.ceil(text.length / (durationMs / tickMs)));
+    const id = setInterval(() => {
+      setChars((c) => {
+        const next = Math.min(text.length, c + perTick);
+        if (next >= text.length) clearInterval(id);
+        return next;
+      });
+    }, tickMs);
+    return () => clearInterval(id);
+    // chars intentionally omitted — interval drives it forward via updater.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [text, durationMs]);
+
+  return {
+    out: text.slice(0, chars),
+    done: chars >= text.length,
+  };
+}
+
 function timeAgo(date: Date): string {
   const diff = Date.now() - date.getTime();
   const mins = Math.floor(diff / 60000);
@@ -52,6 +101,11 @@ export function ActionPanel({
   const clusterCaptures = captures
     .filter((c) => c.clusterId === cluster?.id && c.status === "clustered")
     .slice(0, 4);
+
+  // Type the synthesis out on open (and re-type when the cluster changes).
+  const { out: synthText, done: synthDone } = useTypewriter(
+    open && cluster ? cluster.synthesis : ""
+  );
 
   return (
     <AnimatePresence>
@@ -105,6 +159,7 @@ export function ActionPanel({
               </div>
               <button
                 onClick={onClose}
+                aria-label="Close action panel"
                 className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-colors"
                 style={{ background: "rgba(255,255,255,0.05)", color: "var(--syn-slate)" }}
               >
@@ -130,8 +185,19 @@ export function ActionPanel({
                     Synthesis
                   </span>
                 </div>
-                <p className="text-xs leading-relaxed" style={{ color: "var(--syn-ash)" }}>
-                  {cluster.synthesis}
+                <p
+                  className="text-xs leading-relaxed"
+                  style={{ color: "var(--syn-ash)" }}
+                  aria-live="polite"
+                >
+                  {synthText}
+                  {!synthDone && (
+                    <span
+                      aria-hidden="true"
+                      className="inline-block w-[6px] h-3 align-[-1px] ml-0.5 animate-pulse"
+                      style={{ background: "var(--syn-indigo)" }}
+                    />
+                  )}
                 </p>
               </div>
 

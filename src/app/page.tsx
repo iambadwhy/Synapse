@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
 import { Capture, Cluster, CaptureType } from "@/lib/types";
@@ -18,6 +18,7 @@ import { CaptureBar } from "@/components/CaptureBar";
 import { CaptureCard } from "@/components/CaptureCard";
 import { ActionPanel } from "@/components/ActionPanel";
 import { CaptureInspector } from "@/components/CaptureInspector";
+import { CommandLauncher } from "@/components/CommandLauncher";
 import { MapView } from "@/components/MapView";
 import { Sparkles } from "lucide-react";
 
@@ -43,6 +44,25 @@ export default function Home() {
   const [acceptedToast, setAcceptedToast] = useState<string | null>(null);
   const [tweakMode, setTweakMode] = useState(false);
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Demo mode
+  const [demoRunning, setDemoRunning] = useState(false);
+  const demoTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  // ⌘K command launcher
+  const [commandOpen, setCommandOpen] = useState(false);
+
+  // Global ⌘K / Ctrl+K to toggle quick-capture.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setCommandOpen((v) => !v);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   // ── Add a new capture ──────────────────────────────
   const handleCapture = useCallback(
@@ -120,6 +140,62 @@ export default function Home() {
     setTweakMode((v) => !v);
   }, []);
 
+  // ── Demo mode: fire 3 staggered captures through the real pipeline ──
+  const handleRunDemo = useCallback(() => {
+    if (demoRunning) return;
+    setDemoRunning(true);
+    // Clear any stale timers from a previous run.
+    demoTimersRef.current.forEach((t) => clearTimeout(t));
+    demoTimersRef.current = [];
+
+    // Three captures that route to three distinct clusters (accessibility,
+    // Thesis, Channel) so the auto-routing animation is legible end-to-end.
+    const demoCaptures: Array<{
+      delay: number;
+      content: string;
+      type: CaptureType;
+      extra?: { linkUrl?: string; linkDomain?: string; imagePreview?: string };
+    }> = [
+      {
+        delay: 0,
+        content:
+          "APCA spec just updated — the Lumen button token fails by 0.4. Flag it before Friday's review.",
+        type: "voice",
+      },
+      {
+        delay: 2200,
+        content:
+          "Saul Bass, Vertigo opening — the counter-rotating spirals are a pacing trick, not an aesthetic one.",
+        type: "link",
+        extra: {
+          linkUrl: "https://artofthetitle.com/title/vertigo",
+          linkDomain: "artofthetitle.com",
+        },
+      },
+      {
+        delay: 4400,
+        content:
+          "Draft TikTok hook: \"My studio has three chairs and one of them is only for thinking.\" 12s. One pan.",
+        type: "text",
+      },
+    ];
+
+    demoCaptures.forEach(({ delay, content, type, extra }) => {
+      const t = setTimeout(() => {
+        handleCapture(content, type, extra);
+      }, delay);
+      demoTimersRef.current.push(t);
+    });
+
+    // Unlock the button once the last capture has finished animating in
+    // (delay + the 1.8s processing-to-clustered transition in handleCapture).
+    const unlock = setTimeout(() => {
+      setDemoRunning(false);
+      demoTimersRef.current = [];
+    }, 4400 + 2000);
+    demoTimersRef.current.push(unlock);
+  }, [demoRunning, handleCapture]);
+
   // ── Filtered captures for the feed ────────────────
   const visibleCaptures = selectedClusterId
     ? captures.filter((c) => c.clusterId === selectedClusterId)
@@ -129,7 +205,12 @@ export default function Home() {
 
   return (
     <div className="h-full flex flex-col" style={{ background: "var(--syn-bg)" }}>
-      <TopNav view={view} onViewChange={setView} />
+      <TopNav
+        view={view}
+        onViewChange={setView}
+        onRunDemo={handleRunDemo}
+        demoRunning={demoRunning}
+      />
 
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
@@ -230,6 +311,15 @@ export default function Home() {
         onClose={() => setActionPanelOpen(false)}
         onAccept={handleAccept}
         onTweak={handleTweak}
+      />
+
+      {/* ⌘K Command launcher */}
+      <CommandLauncher
+        open={commandOpen}
+        onClose={() => setCommandOpen(false)}
+        onCapture={handleCapture}
+        clusterNameFor={(id) => clusterMap[id]?.name}
+        clusterColorFor={(id) => clusterMap[id]?.color}
       />
 
       {/* Capture Inspector (satellite node click in Map view) */}

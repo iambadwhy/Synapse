@@ -220,6 +220,7 @@ export function CaptureBar({ onCapture }: CaptureBarProps) {
             <button
               onClick={handleSubmit}
               disabled={!canSubmit}
+              aria-label="Capture text"
               className="shrink-0 w-8 h-8 rounded-lg flex items-center justify-center transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
               style={{ background: canSubmit ? "var(--syn-indigo)" : "rgba(255,255,255,0.05)" }}
             >
@@ -245,6 +246,7 @@ export function CaptureBar({ onCapture }: CaptureBarProps) {
               <button
                 onClick={handleSubmit}
                 disabled={!canSubmit}
+                aria-label="Capture link"
                 className="shrink-0 w-8 h-8 rounded-lg flex items-center justify-center transition-all cursor-pointer disabled:opacity-30"
                 style={{ background: canSubmit ? "var(--syn-indigo)" : "rgba(255,255,255,0.05)" }}
               >
@@ -315,6 +317,7 @@ export function CaptureBar({ onCapture }: CaptureBarProps) {
                 <div className="flex gap-1">
                   <button
                     onClick={resetAll}
+                    aria-label="Remove image"
                     className="w-8 h-8 rounded-lg flex items-center justify-center cursor-pointer"
                     style={{ background: "rgba(255,255,255,0.05)", color: "var(--syn-slate)" }}
                   >
@@ -322,6 +325,7 @@ export function CaptureBar({ onCapture }: CaptureBarProps) {
                   </button>
                   <button
                     onClick={handleSubmit}
+                    aria-label="Capture image"
                     className="w-8 h-8 rounded-lg flex items-center justify-center cursor-pointer"
                     style={{ background: "var(--syn-indigo)" }}
                   >
@@ -340,6 +344,7 @@ export function CaptureBar({ onCapture }: CaptureBarProps) {
               <div className="flex flex-col items-center gap-3 py-2">
                 <button
                   onClick={startRecording}
+                  aria-label="Start voice recording"
                   className="w-12 h-12 rounded-full flex items-center justify-center transition-all cursor-pointer"
                   style={{ background: "rgba(99,102,241,0.15)", border: "1.5px solid var(--syn-indigo)" }}
                 >

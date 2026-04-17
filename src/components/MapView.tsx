@@ -966,6 +966,7 @@ export function MapView({
       >
         <button
           onClick={() => zoomBy(1.25)}
+          aria-label="Zoom in"
           className="w-9 h-9 flex items-center justify-center transition-colors cursor-pointer hover:bg-white/5"
           style={{ color: "var(--syn-ash)" }}
           title="Zoom in"
@@ -982,6 +983,7 @@ export function MapView({
         <div className="h-px" style={{ background: "var(--syn-border)" }} />
         <button
           onClick={() => zoomBy(1 / 1.25)}
+          aria-label="Zoom out"
           className="w-9 h-9 flex items-center justify-center transition-colors cursor-pointer hover:bg-white/5"
           style={{ color: "var(--syn-ash)" }}
           title="Zoom out"
@@ -991,6 +993,7 @@ export function MapView({
         <div className="h-px" style={{ background: "var(--syn-border)" }} />
         <button
           onClick={resetView}
+          aria-label="Reset map view"
           className="w-9 h-9 flex items-center justify-center transition-colors cursor-pointer hover:bg-white/5"
           style={{ color: "var(--syn-ash)" }}
           title="Reset view"
@@ -1001,6 +1004,8 @@ export function MapView({
 
       <canvas
         ref={canvasRef}
+        role="application"
+        aria-label={`Interactive thought map with ${clusters.length} clusters and ${captures.length} captures. Click clusters to open the action panel, click captures to inspect. Scroll to zoom, drag empty space to pan.`}
         onPointerMove={handlePointerMove}
         onPointerDown={handlePointerDown}
         onPointerUp={handlePointerUp}
