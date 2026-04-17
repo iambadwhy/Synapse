@@ -10,8 +10,12 @@ A working prototype for a multimodal thought-capture system that auto-clusters f
 
 ## Live demo
 
-- **Deployed:** _(Vercel URL — wired up post-commit)_
+- **Deployed:** [synapse-ecru-tau.vercel.app](https://synapse-ecru-tau.vercel.app)
+- **Source:** [github.com/iambadwhy/Synapse](https://github.com/iambadwhy/Synapse)
 - **Local:** `npm install && npm run dev` → http://localhost:3000
+
+> Hit the **▶ Demo** button in the top bar to watch three captures auto-route
+> end-to-end, or press **⌘K / Ctrl+K** anywhere for the quick-capture launcher.
 
 ---
 
