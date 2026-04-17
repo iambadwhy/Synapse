@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Cluster, Capture } from "@/lib/types";
 import {
   Folder,
@@ -9,8 +9,8 @@ import {
   Calendar,
   CheckSquare,
   ShieldCheck,
-  ChevronRight,
   Inbox,
+  Sparkle,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -31,6 +31,7 @@ function clusterIcon(id: string) {
     tasks: <CheckSquare className="w-3.5 h-3.5" />,
     people: <Users className="w-3.5 h-3.5" />,
     meetings: <Calendar className="w-3.5 h-3.5" />,
+    inspiration: <Sparkle className="w-3.5 h-3.5" />,
   };
   return map[id] ?? <Tag className="w-3.5 h-3.5" />;
 }
@@ -40,15 +41,13 @@ function ClusterRow({
   count,
   selected,
   recentlyRouted,
-  onSelect,
-  onAction,
+  onOpen,
 }: {
   cluster: Cluster;
   count: number;
   selected: boolean;
   recentlyRouted: boolean;
-  onSelect: () => void;
-  onAction: () => void;
+  onOpen: () => void;
 }) {
   const rowRef = useRef<HTMLButtonElement>(null);
 
@@ -64,11 +63,12 @@ function ClusterRow({
   }, [recentlyRouted]);
 
   return (
-    <div className="group relative flex items-center gap-1 px-2 mb-0.5">
+    <div className="relative flex items-center px-2 mb-0.5">
       <button
         ref={rowRef}
-        onClick={onSelect}
-        className="flex-1 flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-left transition-all cursor-pointer"
+        onClick={onOpen}
+        aria-label={`Open ${cluster.name}`}
+        className="flex-1 min-w-0 flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-left transition-all cursor-pointer"
         style={
           selected
             ? {
@@ -99,7 +99,7 @@ function ClusterRow({
         </span>
         {/* Count */}
         <span
-          className="text-[10px] font-mono tabular-nums px-1.5 py-0.5 rounded-full"
+          className="text-[10px] font-mono tabular-nums px-1.5 py-0.5 rounded-full shrink-0"
           style={{
             background: selected ? `${cluster.color}25` : "rgba(255,255,255,0.05)",
             color: selected ? cluster.color : "var(--syn-slate)",
@@ -108,22 +108,14 @@ function ClusterRow({
           {count}
         </span>
       </button>
-
-      {/* Action chevron — visible on hover */}
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          onAction();
-        }}
-        className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-md cursor-pointer"
-        style={{ color: "var(--syn-slate)" }}
-        title="Open next steps"
-      >
-        <ChevronRight className="w-3.5 h-3.5" />
-      </button>
     </div>
   );
 }
+
+const SIDEBAR_WIDTH_KEY = "syn.sidebar.width";
+const SIDEBAR_MIN = 200;
+const SIDEBAR_MAX = 480;
+const SIDEBAR_DEFAULT = 240;
 
 export function Sidebar({
   clusters,
@@ -139,10 +131,81 @@ export function Sidebar({
   const projects = clusters.filter((c) => c.category === "project");
   const topics = clusters.filter((c) => c.category === "topic");
 
+  // ── Resizable width (persisted) ────────────────────────────────
+  const [width, setWidth] = useState<number>(SIDEBAR_DEFAULT);
+  const [dragging, setDragging] = useState(false);
+  const dragStateRef = useRef<{ startX: number; startW: number }>({
+    startX: 0,
+    startW: SIDEBAR_DEFAULT,
+  });
+
+  // Hydrate from localStorage on mount. SSR must render with the default
+  // width, so the post-hydration setState is deliberate — this is the
+  // documented pattern for reading client-only storage without a hydration
+  // mismatch.
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(SIDEBAR_WIDTH_KEY);
+      if (raw) {
+        const parsed = Math.max(SIDEBAR_MIN, Math.min(SIDEBAR_MAX, Number(raw)));
+        if (!Number.isNaN(parsed)) {
+          // eslint-disable-next-line react-hooks/set-state-in-effect
+          setWidth(parsed);
+        }
+      }
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const persistWidth = useCallback((w: number) => {
+    try {
+      localStorage.setItem(SIDEBAR_WIDTH_KEY, String(Math.round(w)));
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const onHandlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    (e.currentTarget as HTMLDivElement).setPointerCapture(e.pointerId);
+    dragStateRef.current = { startX: e.clientX, startW: width };
+    setDragging(true);
+  };
+
+  const onHandlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragging) return;
+    const dx = e.clientX - dragStateRef.current.startX;
+    const next = Math.max(
+      SIDEBAR_MIN,
+      Math.min(SIDEBAR_MAX, dragStateRef.current.startW + dx)
+    );
+    setWidth(next);
+  };
+
+  const onHandlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragging) return;
+    try {
+      (e.currentTarget as HTMLDivElement).releasePointerCapture(e.pointerId);
+    } catch {
+      /* ignore */
+    }
+    setDragging(false);
+    persistWidth(width);
+  };
+
+  // Clicking a cluster tile now opens the action panel directly — and also
+  // marks it selected so the feed filters when the user switches to Stream.
+  const handleClusterClick = (c: Cluster) => {
+    onClusterSelect(c.id);
+    onClusterAction(c);
+  };
+
   return (
     <aside
-      className="w-60 shrink-0 flex flex-col overflow-y-auto py-4"
+      className="relative shrink-0 flex flex-col overflow-y-auto py-4"
       style={{
+        width: `${width}px`,
         borderRight: "1px solid var(--syn-border)",
         background: "var(--syn-bg)",
       }}
@@ -151,6 +214,7 @@ export function Sidebar({
       <div className="px-4 mb-3">
         <button
           onClick={() => onClusterSelect(null)}
+          aria-label="Show all captures"
           className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg transition-all text-left cursor-pointer"
           style={
             selectedClusterId === null
@@ -160,13 +224,13 @@ export function Sidebar({
         >
           <Inbox className="w-3.5 h-3.5" style={{ color: selectedClusterId === null ? "#fff" : "var(--syn-slate)" }} />
           <span
-            className="text-xs font-medium flex-1"
+            className="text-xs font-medium flex-1 truncate"
             style={{ color: selectedClusterId === null ? "#fff" : "var(--syn-ash)" }}
           >
             All Captures
           </span>
           <span
-            className="text-[10px] font-mono px-1.5 py-0.5 rounded-full"
+            className="text-[10px] font-mono px-1.5 py-0.5 rounded-full shrink-0"
             style={{
               background: selectedClusterId === null ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.05)",
               color: selectedClusterId === null ? "#fff" : "var(--syn-slate)",
@@ -195,10 +259,7 @@ export function Sidebar({
             count={countFor(c.id)}
             selected={selectedClusterId === c.id}
             recentlyRouted={recentlyRoutedClusterId === c.id}
-            onSelect={() =>
-              onClusterSelect(selectedClusterId === c.id ? null : c.id)
-            }
-            onAction={() => onClusterAction(c)}
+            onOpen={() => handleClusterClick(c)}
           />
         ))}
       </div>
@@ -218,13 +279,40 @@ export function Sidebar({
             count={countFor(c.id)}
             selected={selectedClusterId === c.id}
             recentlyRouted={recentlyRoutedClusterId === c.id}
-            onSelect={() =>
-              onClusterSelect(selectedClusterId === c.id ? null : c.id)
-            }
-            onAction={() => onClusterAction(c)}
+            onOpen={() => handleClusterClick(c)}
           />
         ))}
       </div>
+
+      {/* Resize handle — right edge. 5px hit area, 1px visual on hover/drag. */}
+      <div
+        role="separator"
+        aria-orientation="vertical"
+        aria-label="Resize sidebar"
+        onPointerDown={onHandlePointerDown}
+        onPointerMove={onHandlePointerMove}
+        onPointerUp={onHandlePointerUp}
+        onPointerCancel={onHandlePointerUp}
+        className="absolute top-0 right-0 h-full"
+        style={{
+          width: "5px",
+          marginRight: "-2px",
+          cursor: "ew-resize",
+          touchAction: "none",
+          zIndex: 20,
+          background: dragging ? "var(--syn-indigo)" : "transparent",
+          transition: dragging ? "none" : "background 120ms ease",
+        }}
+        onMouseEnter={(e) => {
+          if (!dragging)
+            (e.currentTarget as HTMLDivElement).style.background =
+              "rgba(99,102,241,0.35)";
+        }}
+        onMouseLeave={(e) => {
+          if (!dragging)
+            (e.currentTarget as HTMLDivElement).style.background = "transparent";
+        }}
+      />
     </aside>
   );
 }
