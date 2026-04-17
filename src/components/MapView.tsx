@@ -128,15 +128,30 @@ export function MapView({
     const cx = width / 2;
     const cy = height / 2;
 
+    // Pre-count clustered captures per cluster so node radius scales with
+    // the number of connected thoughts. Bigger cluster = busier cluster.
+    const captureCountByCluster = new Map<string, number>();
+    for (const cap of captures) {
+      if (cap.status !== "clustered") continue;
+      captureCountByCluster.set(
+        cap.clusterId,
+        (captureCountByCluster.get(cap.clusterId) ?? 0) + 1
+      );
+    }
+
     const nodes: SimNode[] = clusters.map((c, i) => {
       const angle = (i / clusters.length) * Math.PI * 2;
       const r = Math.min(width, height) * 0.22;
+      const count = captureCountByCluster.get(c.id) ?? 0;
+      // Base 14, +2.2 per captured thought, capped at 34.
+      // count 0 → 14, count 3 → 20.6, count 6 → 27.2, count 9+ → 34.
+      const radius = Math.min(34, 14 + count * 2.2);
       return {
         id: c.id,
         kind: "cluster" as const,
         label: c.label,
         color: c.color,
-        radius: 18,
+        radius,
         clusterId: c.id,
         x: cx + Math.cos(angle) * r,
         y: cy + Math.sin(angle) * r,

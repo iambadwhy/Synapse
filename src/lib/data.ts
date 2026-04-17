@@ -106,6 +106,19 @@ export const CLUSTERS: Cluster[] = [
     nextStep:
       'Write a 3-bullet summary of the "one medium" decision before the next Heron sync. Decide: title sequences or motion graphics. No more both.',
   },
+  {
+    id: 'inspiration',
+    name: 'Inspiration',
+    label: 'Refs',
+    category: 'topic',
+    color: '#F97316',
+    description:
+      'Visual references and finds that might land somewhere later — posters, frames, moodboard pulls, type specimens.',
+    synthesis:
+      '3 captures this week, all image-led — Polish poster school, Neue Grafik grid, and a subway-tile grid pull on a walk. Two map onto thesis arguments, one maps onto the next Substack post. None of them have been filed into a project yet.',
+    nextStep:
+      'Pull these three into a single reference board Sunday night and tag each for thesis vs. Substack. Anything unfiled by Monday gets archived.',
+  },
 ];
 
 /*
@@ -266,6 +279,238 @@ export const INITIAL_CAPTURES: Capture[] = [
     tags: ['#deck', '#heron', '#prep'],
     status: 'clustered',
   },
+  // ── Thesis additions ────────────────────────────────────────────
+  {
+    id: 'c13',
+    content:
+      "Re-read Hofmann's Graphic Design Manual chapter 3 tonight. The claim that rhythm emerges from constraint is the exact structural argument the thesis has been missing.",
+    type: 'text',
+    clusterId: 'proj-a',
+    inferenceReason:
+      '"thesis" + typography reference + argument-framing language → Thesis project',
+    timestamp: minsAgo(25),
+    tags: ['#hofmann', '#thesis', '#rhythm'],
+    status: 'clustered',
+  },
+  {
+    id: 'c14',
+    content:
+      "Screengrab: Saul Bass's Anatomy of a Murder title — 42 seconds, 9 compositional beats. The cut lines function as kinetic punctuation, not decoration.",
+    type: 'image',
+    clusterId: 'proj-a',
+    inferenceReason:
+      'Saul Bass reference + kinetic analysis + image modality → Thesis project',
+    timestamp: minsAgo(75),
+    tags: ['#saul-bass', '#thesis', '#titles'],
+    status: 'clustered',
+  },
+  {
+    id: 'c15',
+    content:
+      'If kinetic type is rhetorical compression, then static type is rhetorical deferral. That distinction belongs in the thesis intro, paragraph one.',
+    type: 'text',
+    clusterId: 'proj-a',
+    inferenceReason:
+      'Kinetic/static type dichotomy + thesis-intro pointer → Thesis project',
+    timestamp: minsAgo(155),
+    tags: ['#kinetic', '#thesis', '#intro'],
+    status: 'clustered',
+  },
+  // ── Lumen additions ─────────────────────────────────────────────
+  {
+    id: 'c16',
+    content:
+      "Lumen moodboard v3 — Devika loves panel 2 (editorial cutouts), wants panel 5 killed (the gradient). Amending tonight before the Friday review.",
+    type: 'image',
+    clusterId: 'proj-b',
+    inferenceReason:
+      'Lumen entity + Devika feedback + moodboard revision → Lumen project',
+    timestamp: minsAgo(45),
+    tags: ['#lumen', '#moodboard', '#devika'],
+    status: 'clustered',
+  },
+  {
+    id: 'c17',
+    content:
+      'Jordan just flagged the new button hover state fails contrast at 0.6 APCA. Fix before the DS handoff Thursday or the entire variant token set blocks.',
+    type: 'voice',
+    clusterId: 'proj-b',
+    inferenceReason:
+      'Jordan entity + Lumen DS + hover/contrast blocker → Lumen project',
+    timestamp: minsAgo(110),
+    tags: ['#jordan', '#lumen-ds', '#contrast'],
+    status: 'clustered',
+  },
+  {
+    id: 'c18',
+    content:
+      "Everlane's launch email — the 3-column product grid above the fold is exactly what the Lumen Q2 teaser should do. Steal the structure, not the aesthetic.",
+    type: 'link',
+    clusterId: 'proj-b',
+    inferenceReason:
+      'Competitor-email research + "Lumen Q2" context → Lumen project',
+    timestamp: minsAgo(200),
+    tags: ['#research', '#email', '#Q2'],
+    status: 'clustered',
+    linkUrl: 'https://www.everlane.com/journal',
+    linkTitle: 'Everlane — Journal + launches',
+    linkDomain: 'everlane.com',
+  },
+  {
+    id: 'c19',
+    content:
+      'Lumen Q2 timeline v1 — Wk1 moodboard, Wk2 APCA audit, Wk3 component refactor, Wk4 copy pass, Wk5 email build, Wk6 soft launch. Send Devika before EOD.',
+    type: 'text',
+    clusterId: 'proj-b',
+    inferenceReason:
+      'Lumen + 6-week launch plan + Devika review → Lumen project',
+    timestamp: minsAgo(360),
+    tags: ['#lumen', '#timeline', '#Q2'],
+    status: 'clustered',
+  },
+  // ── Channel additions ───────────────────────────────────────────
+  {
+    id: 'c20',
+    content:
+      "TikTok hook 2: \"I thought I needed 14 tabs open to work. Turns out I needed 3 chairs.\" Shoot Saturday while the studio light still holds.",
+    type: 'voice',
+    clusterId: 'proj-c',
+    inferenceReason:
+      'TikTok platform + hook format + production plan → Channel project',
+    timestamp: minsAgo(135),
+    tags: ['#tiktok', '#hook', '#saturday-shoot'],
+    status: 'clustered',
+  },
+  {
+    id: 'c21',
+    content:
+      'Substack scheduling note: Tuesday 9am Eastern has been my strongest window for 6 posts running. Batch-queue everything for that slot, stop improvising.',
+    type: 'text',
+    clusterId: 'proj-c',
+    inferenceReason:
+      'Substack platform + cadence / schedule pattern → Channel project',
+    timestamp: minsAgo(500),
+    tags: ['#substack', '#cadence', '#tuesday'],
+    status: 'clustered',
+  },
+  // ── Accessibility additions ─────────────────────────────────────
+  {
+    id: 'c22',
+    content:
+      'APCA calculator — bookmark for the Lumen audit. Body-text cutoff at +75, large display at +60. The button token currently reads +58 on white.',
+    type: 'link',
+    clusterId: 'accessibility',
+    inferenceReason:
+      'APCA + contrast calculator + cutoff values → Accessibility topic',
+    timestamp: minsAgo(80),
+    tags: ['#APCA', '#tools', '#lumen-audit'],
+    status: 'clustered',
+    linkUrl: 'https://www.myndex.com/APCA/',
+    linkTitle: 'APCA Contrast Calculator',
+    linkDomain: 'myndex.com',
+  },
+  {
+    id: 'c23',
+    content:
+      'WCAG 3.0 draft loosens the link-underline rule if the component is distinguishable by two other means. Lumen already has color + weight. Note for the spec.',
+    type: 'text',
+    clusterId: 'accessibility',
+    inferenceReason:
+      'WCAG + distinguishability rule → Accessibility topic',
+    timestamp: minsAgo(260),
+    tags: ['#WCAG', '#links', '#lumen-ds'],
+    status: 'clustered',
+  },
+  // ── Tasks additions ─────────────────────────────────────────────
+  {
+    id: 'c24',
+    content:
+      'Send Prof. Heron the 3-slide deck by 5pm Friday. Include the Bass case and the narrow-cut decision. No hedging, no "either/or."',
+    type: 'text',
+    clusterId: 'tasks',
+    inferenceReason:
+      'Action verb + hard deadline ("Friday 5pm") → Tasks',
+    timestamp: minsAgo(95),
+    tags: ['#deadline', '#deck', '#heron'],
+    status: 'clustered',
+  },
+  {
+    id: 'c25',
+    content:
+      "Respond to the 3 unread Slacks from Devika before the week closes. Two are blockers. The third is asking about October — can wait.",
+    type: 'text',
+    clusterId: 'tasks',
+    inferenceReason:
+      'Action verb + deadline framing + blocker triage → Tasks',
+    timestamp: minsAgo(380),
+    tags: ['#slack', '#devika', '#unblock'],
+    status: 'clustered',
+  },
+  // ── People additions ────────────────────────────────────────────
+  {
+    id: 'c26',
+    content:
+      'Email Prof. Heron to lock the mentor sync for next Thursday 2pm. He usually says yes same-day if I ask before lunch.',
+    type: 'text',
+    clusterId: 'people',
+    inferenceReason:
+      'Heron entity + scheduling intent + collaborator reach-out → People',
+    timestamp: minsAgo(170),
+    tags: ['#heron', '#email', '#sync'],
+    status: 'clustered',
+  },
+  {
+    id: 'c27',
+    content:
+      "Dev DM'd about a potential intro to a Brooklyn studio hiring MFA grads. Follow up Monday with a 4-piece portfolio cut — thesis trailer + Lumen + 2 old pieces.",
+    type: 'voice',
+    clusterId: 'people',
+    inferenceReason:
+      'DM / follow-up pattern + networking intent → People topic',
+    timestamp: minsAgo(540),
+    tags: ['#dev', '#intro', '#portfolio'],
+    status: 'clustered',
+  },
+  // ── Inspiration additions ───────────────────────────────────────
+  {
+    id: 'c28',
+    content:
+      'Cover of the 1962 Neue Grafik issue — red bleed, Akzidenz Grotesk only, the exact weight of restraint I want the thesis deck to have.',
+    type: 'image',
+    clusterId: 'inspiration',
+    inferenceReason:
+      'Poster / reference image + type specimen framing → Inspiration',
+    timestamp: minsAgo(140),
+    tags: ['#neue-grafik', '#reference', '#restraint'],
+    status: 'clustered',
+  },
+  {
+    id: 'c29',
+    content:
+      "Kaliszewski's title-design archive — the Polish poster school as a pacing reference. Worth a 30-min deep dive this weekend before the thesis section on motion as argument.",
+    type: 'link',
+    clusterId: 'inspiration',
+    inferenceReason:
+      'Archive + reference-deep-dive intent + pacing framing → Inspiration',
+    timestamp: minsAgo(410),
+    tags: ['#poster', '#archive', '#pacing'],
+    status: 'clustered',
+    linkUrl: 'https://www.theculturetrip.com/europe/poland/articles/polish-poster-school/',
+    linkTitle: 'The Polish Poster School — visual archive',
+    linkDomain: 'theculturetrip.com',
+  },
+  {
+    id: 'c30',
+    content:
+      "Subway tile moment from this morning's walk — the grout line IS the grid. Save for the 'grid is not neutral' Substack piece.",
+    type: 'image',
+    clusterId: 'inspiration',
+    inferenceReason:
+      'Street-photo moodboard capture + cross-link to Substack draft → Inspiration',
+    timestamp: minsAgo(650),
+    tags: ['#subway', '#grid', '#street'],
+    status: 'clustered',
+  },
 ];
 
 export const CLUSTER_ORDER = [
@@ -276,6 +521,7 @@ export const CLUSTER_ORDER = [
   'tasks',
   'people',
   'meetings',
+  'inspiration',
 ];
 
 /*
@@ -286,8 +532,9 @@ export function inferCluster(content: string): string {
   const lower = content.toLowerCase();
   if (/wcag|apca|contrast|a11y|accessibility|aria/.test(lower)) return 'accessibility';
   if (/lumen|devika|jordan|client|launch|q2|refresh|campaign|comms|linear/.test(lower)) return 'proj-b';
-  if (/thesis|heron|kinetic|motion|bauhaus|bass|typeface|typograph|grid/.test(lower)) return 'proj-a';
+  if (/thesis|heron|kinetic|motion|bauhaus|bass|typeface|typograph|hofmann/.test(lower)) return 'proj-a';
   if (/tiktok|substack|instagram|reel|channel|hook|caption|publish|essay|draft/.test(lower)) return 'proj-c';
+  if (/moodboard|poster|archive|specimen|reference|ref\b|inspir|screengrab|bleed|spread/.test(lower)) return 'inspiration';
   if (/heron|mentor|sync|meet|call|standup|debrief|review\b/.test(lower)) return 'meetings';
   if (/task|todo|deadline|by friday|by monday|eod|finalize|finish|complete|block\s+\dh/.test(lower)) return 'tasks';
   if (/maya|@|reach out|contact|collab|dm|email|follow.?up/.test(lower)) return 'people';
@@ -326,6 +573,11 @@ export function getInferenceReason(content: string, clusterId: string): string {
     meetings: [
       'Advisor / sync / review pattern → Meetings topic',
       'Decision-capture format typical of sync notes → Meetings topic',
+    ],
+    inspiration: [
+      'Visual reference / poster / archive pattern → Inspiration topic',
+      'Moodboard pull with no project home yet → Inspiration topic',
+      'Type specimen or grid study → Inspiration topic',
     ],
   };
   const list = reasons[clusterId] || ['Semantic similarity to existing cluster'];
