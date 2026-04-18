@@ -118,6 +118,48 @@ Click any satellite on the Map (or a capture in the stream) to expand its full c
 - **Auth, settings, multi-user.** Not what the brief is asking.
 - **An onboarding flow.** The prototype presents a mid-state workspace on purpose; empty-state onboarding is a different design problem.
 
+## Process write-up
+
+Short answers — edit for voice.
+
+### Three most important trade-offs
+
+1. **Real LLM routing → regex + template reasons.** Every capture calls `inferCluster()` (pattern matching) and `getInferenceReason()` (templated strings) instead of a live model. The design question is *how does it feel when the system decides for you and explains itself* — that reads identically whether the decider is GPT-4 or a regex. Swapping in an LLM is a day's work behind the same interface. Burning 10 of 48 hours on prompt engineering would have starved the interaction.
+2. **Cross-capture edges in the Map → strictly capture→cluster edges.** The wedge is "clusters are the organizing unit, and every cluster rolls up into one next action." Adding satellite-to-satellite links would have turned the Map into a generic knowledge graph (Obsidian, Roam) and blurred that thesis. Related-thoughts surfaces can live inside the inspector; they don't belong on the canvas.
+3. **Cross-device sync / auth / persistence → single-session state with localStorage for UI widths only.** A design prototype is not a sync engine. The brief asks about the *design problem between capture and action*, not the *infra problem of a distributed second brain*. I kept state in `page.tsx` so the full data model is legible in one file.
+
+### Sprint sequence + validation checkpoints
+
+- **Sprint 1 (0–8h) — Thesis, IA, seed data.** Cluster taxonomy, regex router, 30 hand-written seed captures with inference reasons. *Checkpoint:* paste any realistic fragment and the resulting routing + reason reads plausibly on first glance.
+- **Sprint 2 (8–20h) — Capture pipeline.** All four modes (text / link / image / voice) on the bar, processing→clustered state transition, Why-popover, sidebar pulse on arrival. *Checkpoint:* a cold user hits ⌘K, types a thought, and can verbalize what happened in one sentence.
+- **Sprint 3 (20–32h) — Map view.** d3-force + HTML canvas, pan/zoom/drag, hover cards, cluster-size-by-connection-count, rasterized icons. *Checkpoint:* 30 captures across 8 clusters is legible without labels, and the canvas holds 60fps while dragging.
+- **Sprint 4 (32–42h) — Mutations + Action Panel.** ActionPanel as a third column (not an overlay), capture edit / move / delete / complete, ClusterCreator modal, completion flow wired through both views. *Checkpoint:* a reviewer can move a capture, complete it, add a custom topic, and see the Map react live.
+- **Sprint 5 (42–48h) — Brand, polish, ship.** Logo, top-nav search, capture-bar focus glow, README, Vercel deploy. *Checkpoint:* cold-open the deploy URL, hit Demo, record everything unbroken.
+
+### How I leveraged AI
+
+- **Code.** Paired with Claude Code end-to-end — scaffolding components, iterating on the d3-force + canvas hit-testing math, debugging React effect hazards (stale-state-in-effect, ref-in-effect), and refactoring the completion flow across six files in one pass. Every commit co-authors Claude where it contributed substantively.
+- **Copy.** Cluster synthesis strings, next-step prompts, inference reasons, Why-popover microcopy, README prose — drafted with Claude, then edited for voice. The rule: Claude drafts to length, I strip anything that sounds like a chatbot.
+- **Visual.** Design tokens, spacing, and information hierarchy are mine. Icon selection for the cluster registry and small layout compositions (e.g., the hover cards in Map view) were Claude-assisted. The logo itself was designed externally in Figma; Claude wrote the `SynapseLogo.tsx` inline-SVG component and the brand-story paragraph.
+- **QA.** Used Claude as a cold-read critic — "audit this build against the brief, tell me what's missing" — which surfaced real gaps I'd have shipped past (e.g., inference reasons leaking raw cluster ids, missing completion flow, no search). Build + lint gates run every sprint boundary.
+- **Retrospective.** Mid-build "what am I missing" audits from Claude acted as a lightweight red-team; they don't replace user testing, but at 48 hours with no users in the loop, an adversarial second-opinion is the cheapest insurance against self-deception.
+
+### One more week — product + GTM
+
+**Product**
+- Swap the regex router for a real LLM call per capture, with per-cluster debounced synthesis + next-step regeneration so the map feels alive.
+- Ingestion from where thoughts actually live: a browser extension (right-click → capture), an Apple Notes watcher, a Slack `/remember` bot.
+- A calibration loop — Accept/Tweak/Dismiss telemetry feeds a per-user routing correction layer, so the system learns your taxonomy instead of imposing one.
+- Mobile quick-capture via iOS Share Sheet + Siri intent. The 80% use case is mid-walk, mid-commute, mid-meeting.
+- Shareable cluster exports ("here's what my brain did this week") — half artifact, half growth loop.
+
+**GTM**
+- Ship the 15-second map-clustering-in-real-time hero reel on TikTok/Reels — this product is inherently screen-recordable.
+- Pin a Substack essay on *"Why every note-taking app has the same flaw"* to HN and design-adjacent subreddits; embed the live demo.
+- Referral waitlist with position-jumping (Superhuman/Arc playbook) — gates access to users who evangelize, which is also the wedge persona.
+- Five-creator case-study program: embed with high-output solo operators, document their weekly review ritual, ship as short films.
+- Pricing probe: free up to N captures/day, $9/mo unlimited. Waitlist cohort is the validation sample.
+
 ## Running locally
 
 ```bash
