@@ -75,7 +75,7 @@ Click any satellite on the Map (or a capture in the stream) to expand its full c
 ## Brand system
 
 - **Name:** Synapse. The instant a thought connects to something.
-- **Logo mark:** The Zap glyph in an indigo rounded square — "a thought, captured."
+- **Logo mark:** An **"S" curling around a sheet of paper**, with the letter form drawn entirely in *negative space* — the paper and the S are the same gesture, just foreground and ground swapped. A small four-pointed spark sits above the fold, marking the moment the thought connects. Blue-to-indigo gradient (`#0055FF → #4581F8`) on black, to read as *signal*, not decoration. The negative-space construction is the whole idea: capture (the page) and connection (the S) aren't two things — they're the same thing seen from different sides.
 - **Palette** (CSS custom properties in `src/app/globals.css`):
   - `--syn-bg`: `#0A0A0A` — near-black, reduces eye strain for long capture sessions.
   - `--syn-indigo`: `#6366F1` — system / AI / inference color.
@@ -113,7 +113,6 @@ Click any satellite on the Map (or a capture in the stream) to expand its full c
 
 ## Scope discipline — what I explicitly cut
 
-- **Search.** Would have been a two-hour black hole for no brief payoff.
 - **Cross-device sync.** A design prototype is not a sync engine.
 - **Real STT / image OCR.** The voice and image flows have full UI but mock the model output — the design question is the interaction, not the model.
 - **Auth, settings, multi-user.** Not what the brief is asking.
@@ -135,13 +134,16 @@ src/
 │   ├── layout.tsx           # Tooltip provider, fonts
 │   └── globals.css          # Design tokens, shimmer / pulse / wave animations
 ├── components/
-│   ├── TopNav.tsx           # Logo + Stream/Map toggle
-│   ├── Sidebar.tsx          # Filterable Projects + Topics
-│   ├── CaptureBar.tsx       # Text / Link / Image / Voice inputs
-│   ├── CaptureCard.tsx      # Feed card with processing → clustered state + Why? tooltip
-│   ├── MapView.tsx          # d3-force canvas with pan/zoom, hover cards, floating labels
+│   ├── SynapseLogo.tsx      # Brand mark — S-around-a-page in negative space
+│   ├── TopNav.tsx           # Logo + search + Stream/Map toggle
+│   ├── Sidebar.tsx          # Filterable Projects + Topics, user-creatable
+│   ├── CaptureBar.tsx       # Text / Link / Image / Voice inputs with focus glow
+│   ├── CaptureCard.tsx      # Feed card — routing, Why popover, complete/edit/move menu
+│   ├── MapView.tsx          # d3-force canvas with pan/zoom, rasterized cluster icons, hollow-ring completed captures
 │   ├── ActionPanel.tsx      # Right slide-in: synthesis + next step + Accept/Tweak
-│   └── CaptureInspector.tsx # Right slide-in: single-thought detail view
+│   ├── CaptureInspector.tsx # Right slide-in: single-thought detail + complete/delete
+│   ├── ClusterCreator.tsx   # Modal for user-created topics / projects
+│   └── CommandLauncher.tsx  # ⌘K quick-capture overlay
 └── lib/
     ├── types.ts
     └── data.ts              # Seeded clusters, captures, inferCluster(), getInferenceReason()

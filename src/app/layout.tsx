@@ -17,6 +17,9 @@ export const metadata: Metadata = {
   title: "Synapse — Your scattered thoughts, automatically mapped.",
   description:
     "Capture anything. Synapse auto-clusters your fragments into projects, topics, and actionable next steps.",
+  icons: {
+    icon: "/synapse-logo.svg",
+  },
 };
 
 export default function RootLayout({

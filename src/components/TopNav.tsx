@@ -1,6 +1,7 @@
 "use client";
 
-import { LayoutGrid, Globe, Settings, Zap, Play, Loader2, Search, X } from "lucide-react";
+import { LayoutGrid, Globe, Settings, Play, Loader2, Search, X } from "lucide-react";
+import { SynapseLogo } from "./SynapseLogo";
 
 interface TopNavProps {
   view: "feed" | "map";
@@ -29,13 +30,8 @@ export function TopNav({
       }}
     >
       {/* Logo */}
-      <div className="flex items-center gap-2.5 select-none">
-        <div
-          className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
-          style={{ background: "var(--syn-indigo)" }}
-        >
-          <Zap className="w-3.5 h-3.5 text-white" fill="white" strokeWidth={0} />
-        </div>
+      <div className="flex items-center gap-2 select-none">
+        <SynapseLogo className="w-8 h-8 shrink-0" />
         <span
           className="font-semibold text-white tracking-tight text-[15px]"
           style={{ fontFamily: "var(--font-geist-sans)" }}
