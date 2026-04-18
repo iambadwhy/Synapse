@@ -17,6 +17,9 @@ import {
   Plus,
   Check,
   X,
+  Circle,
+  CheckCircle2,
+  RotateCcw,
 } from "lucide-react";
 
 const TYPE_ICONS = {
@@ -67,6 +70,7 @@ interface CaptureCardProps {
   onEdit: (id: string, content: string, tags?: string[]) => void;
   onDelete: (id: string) => void;
   onMove: (id: string, targetClusterId: string) => void;
+  onToggleComplete: (id: string) => void;
   onRequestNewCluster: () => void;
 }
 
@@ -77,8 +81,10 @@ export function CaptureCard({
   onEdit,
   onDelete,
   onMove,
+  onToggleComplete,
   onRequestNewCluster,
 }: CaptureCardProps) {
+  const completed = !!capture.completedAt;
   const TypeIcon = TYPE_ICONS[capture.type] ?? Type;
 
   // ── Local UI state ───────────────────────────────────
@@ -175,13 +181,39 @@ export function CaptureCard({
       transition={{ duration: 0.3 }}
       className="rounded-xl p-4 mb-2.5 group relative"
       style={{
-        background: "var(--syn-surface)",
-        border: "1px solid var(--syn-border)",
+        background: completed
+          ? "rgba(16,185,129,0.04)"
+          : "var(--syn-surface)",
+        border: completed
+          ? "1px solid rgba(16,185,129,0.2)"
+          : "1px solid var(--syn-border)",
+        opacity: completed ? 0.78 : 1,
       }}
     >
       {/* Header row */}
       <div className="flex items-center justify-between mb-2.5">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 min-w-0">
+          {/* Completion checkbox — always visible for task-shaped clusters,
+              hover-only otherwise. Kept interactive even when completed so
+              the user can undo. */}
+          <button
+            onClick={() => onToggleComplete(capture.id)}
+            aria-label={
+              completed ? "Mark as not complete" : "Mark as complete"
+            }
+            aria-pressed={completed}
+            className={`w-4 h-4 flex items-center justify-center rounded-full cursor-pointer transition-all shrink-0 ${
+              completed ? "" : "opacity-50 group-hover:opacity-100"
+            }`}
+            style={{ color: completed ? "var(--syn-mint)" : "var(--syn-slate)" }}
+          >
+            {completed ? (
+              <CheckCircle2 className="w-4 h-4" />
+            ) : (
+              <Circle className="w-3.5 h-3.5" />
+            )}
+          </button>
+
           <TypeIcon
             className="w-3.5 h-3.5 shrink-0"
             style={{ color: "var(--syn-slate)" }}
@@ -192,6 +224,18 @@ export function CaptureCard({
           >
             {timeAgo(capture.timestamp)}
           </span>
+          {completed && (
+            <span
+              className="text-[10px] font-mono px-1.5 py-0.5 rounded-full shrink-0"
+              style={{
+                background: "rgba(16,185,129,0.12)",
+                color: "var(--syn-mint)",
+                border: "1px solid rgba(16,185,129,0.3)",
+              }}
+            >
+              Completed
+            </span>
+          )}
         </div>
 
         <div className="flex items-center gap-1.5">
@@ -253,6 +297,20 @@ export function CaptureCard({
                 >
                   {!moveMenuOpen && !confirmDelete && (
                     <>
+                      <MenuItem
+                        icon={
+                          completed ? (
+                            <RotateCcw className="w-3 h-3" />
+                          ) : (
+                            <CheckCircle2 className="w-3 h-3" />
+                          )
+                        }
+                        label={completed ? "Reopen" : "Mark complete"}
+                        onClick={() => {
+                          onToggleComplete(capture.id);
+                          setMenuOpen(false);
+                        }}
+                      />
                       <MenuItem
                         icon={<Edit2 className="w-3 h-3" />}
                         label="Edit"
@@ -436,7 +494,12 @@ export function CaptureCard({
               {(capture.linkDomain ?? "?")[0]?.toUpperCase()}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-xs text-[var(--syn-dim)] truncate leading-snug">
+              <p
+                className="text-xs text-[var(--syn-dim)] truncate leading-snug"
+                style={{
+                  textDecoration: completed ? "line-through" : "none",
+                }}
+              >
                 {capture.linkTitle}
               </p>
               <p
@@ -461,14 +524,22 @@ export function CaptureCard({
             className="w-full max-h-40 object-cover rounded-lg"
             style={{ border: "1px solid var(--syn-border)" }}
           />
-          <p className="text-xs mt-1.5 text-[var(--syn-dim)] leading-relaxed">
+          <p
+            className="text-xs mt-1.5 text-[var(--syn-dim)] leading-relaxed"
+            style={{
+              textDecoration: completed ? "line-through" : "none",
+            }}
+          >
             {capture.content}
           </p>
         </div>
       ) : (
         <p
           className="text-sm leading-relaxed mb-2.5"
-          style={{ color: "var(--syn-dim)" }}
+          style={{
+            color: "var(--syn-dim)",
+            textDecoration: completed ? "line-through" : "none",
+          }}
         >
           {capture.content}
         </p>

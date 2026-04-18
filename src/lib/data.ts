@@ -278,6 +278,9 @@ export const INITIAL_CAPTURES: Capture[] = [
     timestamp: minsAgo(1440),
     tags: ['#deck', '#heron', '#prep'],
     status: 'clustered',
+    // Already shipped — lets the completion affordance demo the "in-place
+    // strike + hollow ring on map" pattern without requiring a fresh click.
+    completedAt: minsAgo(320),
   },
   // ── Thesis additions ────────────────────────────────────────────
   {
@@ -433,6 +436,7 @@ export const INITIAL_CAPTURES: Capture[] = [
     timestamp: minsAgo(95),
     tags: ['#deadline', '#deck', '#heron'],
     status: 'clustered',
+    completedAt: minsAgo(30),
   },
   {
     id: 'c25',

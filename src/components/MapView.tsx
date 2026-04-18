@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 import {
   forceSimulation,
   forceLink,
@@ -22,7 +23,71 @@ import {
   Mic,
   Brain,
   Sparkles,
+  Folder,
+  Tag,
+  Users,
+  Calendar,
+  CheckSquare,
+  ShieldCheck,
+  Sparkle,
+  Bookmark,
+  Briefcase,
+  Compass,
+  Coffee,
+  Rocket,
+  Flame,
+  Lightbulb,
+  Music,
+  Camera,
+  Pencil,
+  Target,
+  Heart,
+  Leaf,
+  Star,
+  CheckCircle2,
 } from "lucide-react";
+
+/* Icon registry mirrors Sidebar's resolution so canvas-rendered cluster
+ * icons match what users see in the sidebar. */
+const ICON_BY_NAME: Record<string, typeof Folder> = {
+  folder: Folder,
+  tag: Tag,
+  users: Users,
+  calendar: Calendar,
+  checksquare: CheckSquare,
+  shield: ShieldCheck,
+  sparkle: Sparkle,
+  bookmark: Bookmark,
+  briefcase: Briefcase,
+  compass: Compass,
+  coffee: Coffee,
+  rocket: Rocket,
+  flame: Flame,
+  lightbulb: Lightbulb,
+  music: Music,
+  camera: Camera,
+  pencil: Pencil,
+  target: Target,
+  heart: Heart,
+  leaf: Leaf,
+  star: Star,
+};
+
+const BUILTIN_CLUSTER_ICON: Record<string, typeof Folder> = {
+  "proj-a": Folder,
+  "proj-b": Folder,
+  "proj-c": Folder,
+  accessibility: ShieldCheck,
+  tasks: CheckSquare,
+  people: Users,
+  meetings: Calendar,
+  inspiration: Sparkle,
+};
+
+function resolveClusterIcon(cluster: Cluster): typeof Folder {
+  if (cluster.icon && ICON_BY_NAME[cluster.icon]) return ICON_BY_NAME[cluster.icon];
+  return BUILTIN_CLUSTER_ICON[cluster.id] ?? Tag;
+}
 
 const TYPE_ICONS = {
   text: Type,
@@ -54,6 +119,10 @@ interface SimNode {
   color: string;
   radius: number;
   clusterId: string;
+  /** For capture nodes: whether this capture has been marked complete.
+   *  Drawn as a hollow ring instead of a filled dot so the user can still
+   *  see it in context but it visually recedes. */
+  completed?: boolean;
   /* d3-force will populate these */
   x?: number;
   y?: number;
@@ -170,6 +239,7 @@ export function MapView({
           color: cluster?.color ?? "#64748B",
           radius: 5,
           clusterId: c.clusterId,
+          completed: !!c.completedAt,
           x: cx + (Math.random() - 0.5) * 160,
           y: cy + (Math.random() - 0.5) * 160,
         };
@@ -258,6 +328,65 @@ export function MapView({
     ro.observe(container);
     return () => ro.disconnect();
   }, []);
+
+  /* ── Live-sync mutable capture state onto existing SimNodes ──
+   * The simulation is only rebuilt when counts change (see the init effect),
+   * so in-place edits like toggling completion or moving a capture need to
+   * be mirrored onto the nodes directly. */
+  useEffect(() => {
+    const byId = new Map(captures.map((c) => [c.id, c]));
+    for (const n of nodesRef.current) {
+      if (n.kind !== "capture") continue;
+      const cap = byId.get(n.id);
+      if (!cap) continue;
+      n.completed = !!cap.completedAt;
+      if (cap.clusterId !== n.clusterId) {
+        const cluster = clusters.find((cl) => cl.id === cap.clusterId);
+        n.clusterId = cap.clusterId;
+        if (cluster) n.color = cluster.color;
+      }
+    }
+    captureByIdRef.current = byId;
+  }, [captures, clusters]);
+
+  /* ── Rasterize cluster icons to bitmap images ────── *
+   * Lucide components can't be drawn directly to canvas. Serialize each
+   * cluster's icon to an SVG string once, turn it into an HTMLImageElement,
+   * then drawImage at the node centre in the render loop. */
+  const iconImagesRef = useRef<Map<string, HTMLImageElement>>(new Map());
+  const [, forceIconRerender] = useState(0);
+  useEffect(() => {
+    let cancelled = false;
+    const cache = iconImagesRef.current;
+    for (const cluster of clusters) {
+      if (cache.has(cluster.id)) continue;
+      const Icon = resolveClusterIcon(cluster);
+      const svg = renderToStaticMarkup(
+        createElement(Icon, {
+          color: "#FFFFFF",
+          size: 24,
+          strokeWidth: 2.2,
+        })
+      );
+      const blob = new Blob([svg], { type: "image/svg+xml" });
+      const url = URL.createObjectURL(blob);
+      const img = new Image();
+      img.onload = () => {
+        if (cancelled) return;
+        cache.set(cluster.id, img);
+        URL.revokeObjectURL(url);
+        /* Nudge a re-render so the draw loop picks up the new image —
+         * the RAF loop reads from the ref anyway, but this ensures the
+         * effect runs at least once in case the loop is idle. */
+        forceIconRerender((v) => v + 1);
+      };
+      img.onerror = () => URL.revokeObjectURL(url);
+      img.src = url;
+    }
+    return () => {
+      cancelled = true;
+    };
+  }, [clusters]);
 
   /* ── Wheel zoom (non-passive) ────────────────────── */
   useEffect(() => {
@@ -351,12 +480,14 @@ export function MapView({
       }
 
       /* ── Draw nodes ── */
+      const iconImages = iconImagesRef.current;
       for (const n of nodes) {
         if (n.x == null || n.y == null) continue;
 
         const isHover = n.id === hoverId;
         const isConnected = hoverId ? connectedIds.has(n.id) : true;
         const dimmed = hoverId !== null && !isConnected;
+        const isCompletedCapture = n.kind === "capture" && n.completed;
 
         const baseRadius = n.radius;
         const radius = isHover ? baseRadius + 4 : baseRadius;
@@ -369,30 +500,66 @@ export function MapView({
           ctx.fill();
         }
 
-        /* Main circle */
-        ctx.beginPath();
-        ctx.arc(n.x, n.y, radius, 0, Math.PI * 2);
-        if (isHover) {
-          ctx.fillStyle = "#FFFFFF";
-        } else if (dimmed) {
-          ctx.fillStyle =
-            n.kind === "cluster" ? "rgba(100,100,100,0.3)" : "rgba(100,100,100,0.2)";
-        } else if (n.kind === "cluster") {
-          ctx.fillStyle = `${n.color}D9`;
+        /* Main circle — completed captures render as hollow rings */
+        if (isCompletedCapture && !isHover) {
+          /* Faint fill to keep it visible over dark canvas */
+          ctx.beginPath();
+          ctx.arc(n.x, n.y, radius, 0, Math.PI * 2);
+          ctx.fillStyle = dimmed ? "rgba(100,100,100,0.08)" : `${n.color}18`;
+          ctx.fill();
+          ctx.lineWidth = 1.5 / t.k;
+          ctx.strokeStyle = dimmed ? "rgba(100,100,100,0.4)" : `${n.color}99`;
+          ctx.stroke();
+          /* Tiny check mark inside */
+          ctx.lineWidth = 1.1 / t.k;
+          ctx.strokeStyle = dimmed ? "rgba(255,255,255,0.3)" : `${n.color}CC`;
+          ctx.beginPath();
+          const cr = radius * 0.45;
+          ctx.moveTo(n.x - cr, n.y);
+          ctx.lineTo(n.x - cr * 0.2, n.y + cr * 0.7);
+          ctx.lineTo(n.x + cr, n.y - cr * 0.55);
+          ctx.stroke();
         } else {
-          ctx.fillStyle = `${n.color}AA`;
-        }
-        ctx.fill();
+          ctx.beginPath();
+          ctx.arc(n.x, n.y, radius, 0, Math.PI * 2);
+          if (isHover) {
+            ctx.fillStyle = "#FFFFFF";
+          } else if (dimmed) {
+            ctx.fillStyle =
+              n.kind === "cluster" ? "rgba(100,100,100,0.3)" : "rgba(100,100,100,0.2)";
+          } else if (n.kind === "cluster") {
+            ctx.fillStyle = `${n.color}D9`;
+          } else {
+            ctx.fillStyle = `${n.color}AA`;
+          }
+          ctx.fill();
 
-        if (n.kind === "cluster") {
-          ctx.lineWidth = (isHover ? 2 : 1.5) / t.k;
-          ctx.strokeStyle = isHover ? "#FFFFFF" : `${n.color}AA`;
-          ctx.stroke();
-        } else if (isHover) {
-          /* ring around a hovered capture */
-          ctx.lineWidth = 1.2 / t.k;
-          ctx.strokeStyle = "#FFFFFF";
-          ctx.stroke();
+          if (n.kind === "cluster") {
+            ctx.lineWidth = (isHover ? 2 : 1.5) / t.k;
+            ctx.strokeStyle = isHover ? "#FFFFFF" : `${n.color}AA`;
+            ctx.stroke();
+          } else if (isHover) {
+            ctx.lineWidth = 1.2 / t.k;
+            ctx.strokeStyle = "#FFFFFF";
+            ctx.stroke();
+          }
+        }
+
+        /* Rasterized icon on cluster nodes. The icon is pre-rendered white,
+         * which reads well on the tinted cluster fill. On hover the fill
+         * flips to white (white-on-white would vanish) so we skip the icon
+         * there — the hover state is already distinct from the glow and
+         * size bump. */
+        if (n.kind === "cluster" && !isHover) {
+          const img = iconImages.get(n.id);
+          if (img && img.complete && img.naturalWidth > 0) {
+            const iconSize = Math.max(12, radius * 0.9);
+            const half = iconSize / 2;
+            ctx.save();
+            ctx.globalAlpha = dimmed ? 0.4 : 0.95;
+            ctx.drawImage(img, n.x - half, n.y - half, iconSize, iconSize);
+            ctx.restore();
+          }
         }
 
         if (n.kind === "cluster" && n.label) {
@@ -671,6 +838,14 @@ export function MapView({
           />
           <span className="text-xs" style={{ color: "var(--syn-ash)" }}>
             Captured thought
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="w-3 h-3 flex items-center justify-center flex-shrink-0">
+            <CheckCircle2 className="w-3 h-3" style={{ color: "var(--syn-mint)" }} />
+          </span>
+          <span className="text-xs" style={{ color: "var(--syn-ash)" }}>
+            Completed (hollow)
           </span>
         </div>
         <p className="text-[10px] mt-1" style={{ color: "var(--syn-slate)" }}>

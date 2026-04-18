@@ -30,6 +30,12 @@ export interface Capture {
   timestamp: Date;
   tags: string[];
   status: CaptureStatus;
+  /**
+   * Completion is orthogonal to `status` — a capture can be clustered AND
+   * completed. Presence of this timestamp is the source of truth; absence
+   * means the capture is still live/pending.
+   */
+  completedAt?: Date;
   imageUrl?: string;
   imagePreview?: string;
   linkUrl?: string;

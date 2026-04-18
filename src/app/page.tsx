@@ -40,9 +40,10 @@ export default function Home() {
     string | null
   >(null);
 
-  // Feed sort
+  // Feed sort + completed filter
   const [sortMode, setSortMode] = useState<SortMode>("newest");
   const [sortOpen, setSortOpen] = useState(false);
+  const [hideCompleted, setHideCompleted] = useState(false);
 
   // Action panel — store by id so the rendered cluster stays in sync
   // automatically when `clusters` mutates (rename, etc.).
@@ -145,22 +146,39 @@ export default function Home() {
   const handleMoveCapture = useCallback(
     (id: string, targetClusterId: string) => {
       setCaptures((prev) =>
-        prev.map((c) =>
-          c.id === id
-            ? {
-                ...c,
-                clusterId: targetClusterId,
-                // Mark the reason as user-overridden so the why-popover is honest.
-                inferenceReason: "Manually moved by you → " + targetClusterId,
-              }
-            : c
-        )
+        prev.map((c) => {
+          if (c.id !== id) return c;
+          // Compose an honest reason using the target cluster's *name*
+          // (not its id) so the Why popover reads naturally.
+          const target = clusters.find((cl) => cl.id === targetClusterId);
+          const targetName = target?.name ?? targetClusterId;
+          return {
+            ...c,
+            clusterId: targetClusterId,
+            inferenceReason: `You moved this here — original routing to ${c.clusterId} was overridden. Now filed under ${targetName}.`,
+          };
+        })
       );
       setRecentlyRoutedClusterId(targetClusterId);
       setTimeout(() => setRecentlyRoutedClusterId(null), 1400);
     },
-    []
+    [clusters]
   );
+
+  /**
+   * Toggle capture completion in place. We keep completed items in the
+   * store rather than hard-deleting so the Map still shows them (as hollow
+   * rings) and the user can retrieve them later.
+   */
+  const handleToggleComplete = useCallback((id: string) => {
+    setCaptures((prev) =>
+      prev.map((c) =>
+        c.id === id
+          ? { ...c, completedAt: c.completedAt ? undefined : new Date() }
+          : c
+      )
+    );
+  }, []);
 
   // ── Cluster interactions ───────────────────────────
   const handleClusterAction = useCallback((cluster: Cluster) => {
@@ -281,9 +299,12 @@ export default function Home() {
   }, [clusters]);
 
   const visibleCaptures = useMemo(() => {
-    const filtered = selectedClusterId
+    let filtered = selectedClusterId
       ? captures.filter((c) => c.clusterId === selectedClusterId)
       : captures;
+    if (hideCompleted) {
+      filtered = filtered.filter((c) => !c.completedAt);
+    }
     const sorted = [...filtered];
     if (sortMode === "newest") {
       sorted.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
@@ -298,7 +319,12 @@ export default function Home() {
       });
     }
     return sorted;
-  }, [captures, selectedClusterId, sortMode, clusterRank]);
+  }, [captures, selectedClusterId, sortMode, hideCompleted, clusterRank]);
+
+  const completedCount = useMemo(
+    () => captures.filter((c) => !!c.completedAt).length,
+    [captures]
+  );
 
   const sortLabels: Record<SortMode, string> = {
     newest: "Newest first",
@@ -372,8 +398,42 @@ export default function Home() {
                     </motion.div>
                   )}
 
+                  {/* Hide-completed toggle (only shown when there are any) */}
+                  {completedCount > 0 && (
+                    <button
+                      onClick={() => setHideCompleted((v) => !v)}
+                      aria-pressed={hideCompleted}
+                      aria-label={
+                        hideCompleted
+                          ? `Show ${completedCount} completed`
+                          : `Hide ${completedCount} completed`
+                      }
+                      className={`${
+                        selectedClusterId ? "" : "ml-auto"
+                      } flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-mono cursor-pointer transition-colors`}
+                      style={{
+                        background: hideCompleted
+                          ? "rgba(16,185,129,0.12)"
+                          : "rgba(255,255,255,0.03)",
+                        border: hideCompleted
+                          ? "1px solid rgba(16,185,129,0.35)"
+                          : "1px solid var(--syn-border)",
+                        color: hideCompleted
+                          ? "var(--syn-mint)"
+                          : "var(--syn-slate)",
+                      }}
+                    >
+                      {hideCompleted ? "Live only" : "Hide completed"}
+                      <span className="opacity-60">· {completedCount}</span>
+                    </button>
+                  )}
+
                   {/* Sort dropdown (always visible) */}
-                  <div className="relative ml-auto">
+                  <div
+                    className={`relative ${
+                      selectedClusterId || completedCount > 0 ? "" : "ml-auto"
+                    }`}
+                  >
                     <button
                       onClick={() => setSortOpen((v) => !v)}
                       aria-label="Sort captures"
@@ -472,6 +532,7 @@ export default function Home() {
                       onEdit={handleEditCapture}
                       onDelete={handleDeleteCapture}
                       onMove={handleMoveCapture}
+                      onToggleComplete={handleToggleComplete}
                       onRequestNewCluster={() =>
                         handleOpenClusterCreator("topic")
                       }
@@ -523,12 +584,22 @@ export default function Home() {
 
       {/* Capture Inspector (satellite node click in Map view) */}
       <CaptureInspector
-        capture={inspectedCapture}
+        capture={
+          inspectedCapture
+            ? captures.find((c) => c.id === inspectedCapture.id) ??
+              inspectedCapture
+            : null
+        }
         cluster={
           inspectedCapture ? clusterMap[inspectedCapture.clusterId] : undefined
         }
         onClose={() => setInspectedCapture(null)}
         onOpenCluster={handleOpenClusterFromInspector}
+        onToggleComplete={handleToggleComplete}
+        onDelete={(id) => {
+          handleDeleteCapture(id);
+          setInspectedCapture(null);
+        }}
       />
 
       {/* Tweak overlay — editable prompt */}

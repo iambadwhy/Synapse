@@ -11,13 +11,19 @@ import {
   Type,
   ExternalLink,
   ArrowUpRight,
+  CheckCircle2,
+  RotateCcw,
+  Trash2,
 } from "lucide-react";
+import { useState } from "react";
 
 interface CaptureInspectorProps {
   capture: Capture | null;
   cluster: Cluster | undefined;
   onClose: () => void;
   onOpenCluster: (cluster: Cluster) => void;
+  onToggleComplete: (id: string) => void;
+  onDelete: (id: string) => void;
 }
 
 const TYPE_ICONS = {
@@ -49,9 +55,13 @@ export function CaptureInspector({
   cluster,
   onClose,
   onOpenCluster,
+  onToggleComplete,
+  onDelete,
 }: CaptureInspectorProps) {
   const open = Boolean(capture);
   const TypeIcon = capture ? TYPE_ICONS[capture.type] ?? Type : Type;
+  const completed = !!capture?.completedAt;
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   return (
     <AnimatePresence>
@@ -97,9 +107,24 @@ export function CaptureInspector({
                   <TypeIcon className="w-3.5 h-3.5" style={{ color: "var(--syn-ash)" }} />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-sm font-semibold text-white leading-tight">
-                    {TYPE_LABELS[capture.type] ?? "Capture"}
-                  </p>
+                  <div className="flex items-center gap-1.5">
+                    <p className="text-sm font-semibold text-white leading-tight">
+                      {TYPE_LABELS[capture.type] ?? "Capture"}
+                    </p>
+                    {completed && (
+                      <span
+                        className="inline-flex items-center gap-0.5 text-[9px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded-full"
+                        style={{
+                          background: "rgba(16,185,129,0.12)",
+                          color: "var(--syn-mint)",
+                          border: "1px solid rgba(16,185,129,0.3)",
+                        }}
+                      >
+                        <CheckCircle2 className="w-2.5 h-2.5" />
+                        Done
+                      </span>
+                    )}
+                  </div>
                   <p
                     className="text-[10px] font-mono mt-0.5"
                     style={{ color: "var(--syn-slate)" }}
@@ -267,12 +292,64 @@ export function CaptureInspector({
               )}
             </div>
 
-            {/* Footer action */}
-            {cluster && (
-              <div
-                className="px-5 py-4 shrink-0"
-                style={{ borderTop: "1px solid var(--syn-border)" }}
-              >
+            {/* Footer actions */}
+            <div
+              className="px-5 py-4 shrink-0 flex flex-col gap-2"
+              style={{ borderTop: "1px solid var(--syn-border)" }}
+            >
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => onToggleComplete(capture.id)}
+                  aria-pressed={completed}
+                  className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-medium cursor-pointer transition-all"
+                  style={{
+                    background: completed
+                      ? "rgba(255,255,255,0.04)"
+                      : "rgba(16,185,129,0.12)",
+                    color: completed ? "var(--syn-ash)" : "var(--syn-mint)",
+                    border: completed
+                      ? "1px solid var(--syn-border)"
+                      : "1px solid rgba(16,185,129,0.3)",
+                  }}
+                >
+                  {completed ? (
+                    <>
+                      <RotateCcw className="w-3.5 h-3.5" />
+                      Reopen
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      Mark complete
+                    </>
+                  )}
+                </button>
+                <button
+                  onClick={() => {
+                    if (confirmDelete) {
+                      onDelete(capture.id);
+                      setConfirmDelete(false);
+                    } else {
+                      setConfirmDelete(true);
+                    }
+                  }}
+                  aria-label={confirmDelete ? "Confirm delete" : "Delete capture"}
+                  className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium cursor-pointer transition-all"
+                  style={{
+                    background: confirmDelete
+                      ? "rgba(239,68,68,0.16)"
+                      : "rgba(255,255,255,0.04)",
+                    color: confirmDelete ? "#f87171" : "var(--syn-slate)",
+                    border: confirmDelete
+                      ? "1px solid rgba(239,68,68,0.4)"
+                      : "1px solid var(--syn-border)",
+                  }}
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  {confirmDelete ? "Confirm" : "Delete"}
+                </button>
+              </div>
+              {cluster && (
                 <button
                   onClick={() => onOpenCluster(cluster)}
                   className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium cursor-pointer transition-all"
@@ -285,8 +362,8 @@ export function CaptureInspector({
                   <Brain className="w-4 h-4" />
                   Open {cluster.name}
                 </button>
-              </div>
-            )}
+              )}
+            </div>
           </motion.aside>
         </>
       )}
