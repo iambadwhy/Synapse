@@ -8,7 +8,6 @@ import {
   X,
   Check,
   Edit2,
-  ChevronRight,
   Mic,
   Link2,
   ImageIcon,
@@ -35,13 +34,9 @@ const TYPE_ICONS = {
 /**
  * useTypewriter — streams a target string char-by-char over `durationMs`.
  * Resets whenever `text` changes, so re-opening the panel against a different
- * cluster replays the effect. Respects prefers-reduced-motion (renders full
- * text instantly if the user has it enabled).
+ * cluster replays the effect. Respects prefers-reduced-motion.
  */
 function useTypewriter(text: string, durationMs = 900) {
-  // Reset revealed count when the target text changes, using the
-  // "derive-state-from-props" pattern so we never call setState inside
-  // an effect body.
   const [chars, setChars] = useState(0);
   const prevTextRef = useRef(text);
   if (prevTextRef.current !== text) {
@@ -70,7 +65,6 @@ function useTypewriter(text: string, durationMs = 900) {
       });
     }, tickMs);
     return () => clearInterval(id);
-    // chars intentionally omitted — interval drives it forward via updater.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [text, durationMs]);
 
@@ -90,6 +84,8 @@ function timeAgo(date: Date): string {
   return `${Math.floor(hours / 24)}d ago`;
 }
 
+const PANEL_WIDTH = 360;
+
 export function ActionPanel({
   open,
   cluster,
@@ -108,45 +104,38 @@ export function ActionPanel({
   );
 
   return (
-    <AnimatePresence>
+    <AnimatePresence initial={false}>
       {open && cluster && (
-        <>
-          {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-40"
-            style={{ background: "rgba(0,0,0,0.35)" }}
-            onClick={onClose}
-          />
-
-          {/* Panel */}
-          <motion.aside
-            initial={{ x: "100%" }}
-            animate={{ x: 0 }}
-            exit={{ x: "100%" }}
-            transition={{ type: "spring", damping: 28, stiffness: 300 }}
-            className="fixed top-0 right-0 h-full z-50 flex flex-col overflow-hidden"
-            style={{
-              width: "360px",
-              background: "var(--syn-surface)",
-              borderLeft: "1px solid var(--syn-border)",
-            }}
+        <motion.aside
+          key="action-panel"
+          initial={{ width: 0, opacity: 0 }}
+          animate={{ width: PANEL_WIDTH, opacity: 1 }}
+          exit={{ width: 0, opacity: 0 }}
+          transition={{ type: "spring", damping: 30, stiffness: 280 }}
+          className="h-full flex-shrink-0 overflow-hidden"
+          style={{
+            background: "var(--syn-surface)",
+            borderLeft: "1px solid var(--syn-border)",
+          }}
+        >
+          {/* Inner wrapper at fixed width so the width animation doesn't
+              reflow the children mid-tween. */}
+          <div
+            className="h-full flex flex-col overflow-hidden"
+            style={{ width: `${PANEL_WIDTH}px` }}
           >
             {/* Header */}
             <div
               className="flex items-center justify-between px-5 py-4 shrink-0"
               style={{ borderBottom: "1px solid var(--syn-border)" }}
             >
-              <div className="flex items-center gap-2.5">
+              <div className="flex items-center gap-2.5 min-w-0">
                 <span
-                  className="w-2.5 h-2.5 rounded-full"
+                  className="w-2.5 h-2.5 rounded-full shrink-0"
                   style={{ background: cluster.color }}
                 />
-                <div>
-                  <p className="text-sm font-semibold text-white leading-tight">
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-white leading-tight truncate">
                     {cluster.name}
                   </p>
                   <p
@@ -160,8 +149,11 @@ export function ActionPanel({
               <button
                 onClick={onClose}
                 aria-label="Close action panel"
-                className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-colors"
-                style={{ background: "rgba(255,255,255,0.05)", color: "var(--syn-slate)" }}
+                className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-colors shrink-0"
+                style={{
+                  background: "rgba(255,255,255,0.05)",
+                  color: "var(--syn-slate)",
+                }}
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -177,7 +169,10 @@ export function ActionPanel({
                 }}
               >
                 <div className="flex items-center gap-1.5 mb-2.5">
-                  <Brain className="w-3.5 h-3.5" style={{ color: "var(--syn-indigo)" }} />
+                  <Brain
+                    className="w-3.5 h-3.5"
+                    style={{ color: "var(--syn-indigo)" }}
+                  />
                   <span
                     className="text-[10px] font-mono font-semibold uppercase tracking-wider"
                     style={{ color: "var(--syn-indigo)" }}
@@ -256,7 +251,10 @@ export function ActionPanel({
                 }}
               >
                 <div className="flex items-center gap-1.5 mb-2.5">
-                  <Sparkles className="w-3.5 h-3.5" style={{ color: "var(--syn-mint)" }} />
+                  <Sparkles
+                    className="w-3.5 h-3.5"
+                    style={{ color: "var(--syn-mint)" }}
+                  />
                   <span
                     className="text-[10px] font-mono font-semibold uppercase tracking-wider"
                     style={{ color: "var(--syn-mint)" }}
@@ -296,8 +294,8 @@ export function ActionPanel({
                 Tweak
               </button>
             </div>
-          </motion.aside>
-        </>
+          </div>
+        </motion.aside>
       )}
     </AnimatePresence>
   );

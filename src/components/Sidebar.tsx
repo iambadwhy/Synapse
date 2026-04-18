@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Cluster, Capture } from "@/lib/types";
+import { Cluster, Capture, ClusterCategory } from "@/lib/types";
 import {
   Folder,
   Tag,
@@ -11,6 +11,21 @@ import {
   ShieldCheck,
   Inbox,
   Sparkle,
+  Bookmark,
+  Briefcase,
+  Compass,
+  Coffee,
+  Rocket,
+  Flame,
+  Lightbulb,
+  Music,
+  Camera,
+  Pencil,
+  Target,
+  Heart,
+  Leaf,
+  Star,
+  Plus,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -20,9 +35,42 @@ interface SidebarProps {
   recentlyRoutedClusterId: string | null;
   onClusterSelect: (id: string | null) => void;
   onClusterAction: (cluster: Cluster) => void;
+  onRequestCreateCluster: (category: ClusterCategory) => void;
 }
 
-function clusterIcon(id: string) {
+// Dynamic icon registry for user-created clusters (by name).
+// Keep in sync with CLUSTER_ICONS in ClusterCreator.tsx.
+const ICON_BY_NAME: Record<string, typeof Folder> = {
+  folder: Folder,
+  tag: Tag,
+  users: Users,
+  calendar: Calendar,
+  checksquare: CheckSquare,
+  shield: ShieldCheck,
+  sparkle: Sparkle,
+  bookmark: Bookmark,
+  briefcase: Briefcase,
+  compass: Compass,
+  coffee: Coffee,
+  rocket: Rocket,
+  flame: Flame,
+  lightbulb: Lightbulb,
+  music: Music,
+  camera: Camera,
+  pencil: Pencil,
+  target: Target,
+  heart: Heart,
+  leaf: Leaf,
+  star: Star,
+};
+
+function ClusterIcon({ cluster }: { cluster: Cluster }) {
+  // Custom icons first (user-chosen).
+  if (cluster.icon && ICON_BY_NAME[cluster.icon]) {
+    const Icon = ICON_BY_NAME[cluster.icon];
+    return <Icon className="w-3.5 h-3.5" />;
+  }
+  // Built-in icons by id.
   const map: Record<string, React.ReactNode> = {
     "proj-a": <Folder className="w-3.5 h-3.5" />,
     "proj-b": <Folder className="w-3.5 h-3.5" />,
@@ -33,7 +81,7 @@ function clusterIcon(id: string) {
     meetings: <Calendar className="w-3.5 h-3.5" />,
     inspiration: <Sparkle className="w-3.5 h-3.5" />,
   };
-  return map[id] ?? <Tag className="w-3.5 h-3.5" />;
+  return map[cluster.id] ?? <Tag className="w-3.5 h-3.5" />;
 }
 
 function ClusterRow({
@@ -81,23 +129,19 @@ function ClusterRow({
               }
         }
       >
-        {/* Color dot */}
         <span
           className="w-2 h-2 rounded-full shrink-0"
           style={{ background: cluster.color }}
         />
-        {/* Icon */}
         <span style={{ color: selected ? cluster.color : "var(--syn-slate)" }}>
-          {clusterIcon(cluster.id)}
+          <ClusterIcon cluster={cluster} />
         </span>
-        {/* Name */}
         <span
           className="text-xs font-medium flex-1 truncate"
           style={{ color: selected ? "#fff" : "var(--syn-ash)" }}
         >
           {cluster.name}
         </span>
-        {/* Count */}
         <span
           className="text-[10px] font-mono tabular-nums px-1.5 py-0.5 rounded-full shrink-0"
           style={{
@@ -107,6 +151,42 @@ function ClusterRow({
         >
           {count}
         </span>
+      </button>
+    </div>
+  );
+}
+
+function SectionHeader({
+  title,
+  onAdd,
+  addLabel,
+}: {
+  title: string;
+  onAdd: () => void;
+  addLabel: string;
+}) {
+  return (
+    <div className="flex items-center justify-between px-2 mb-2">
+      <p
+        className="text-[10px] font-semibold uppercase tracking-widest"
+        style={{
+          color: "var(--syn-slate)",
+          fontFamily: "var(--font-geist-mono)",
+        }}
+      >
+        {title}
+      </p>
+      <button
+        onClick={onAdd}
+        aria-label={addLabel}
+        className="w-5 h-5 rounded-md flex items-center justify-center cursor-pointer transition-colors opacity-60 hover:opacity-100"
+        style={{
+          background: "rgba(255,255,255,0.04)",
+          color: "var(--syn-slate)",
+          border: "1px solid var(--syn-border-subtle)",
+        }}
+      >
+        <Plus className="w-3 h-3" />
       </button>
     </div>
   );
@@ -124,9 +204,11 @@ export function Sidebar({
   recentlyRoutedClusterId,
   onClusterSelect,
   onClusterAction,
+  onRequestCreateCluster,
 }: SidebarProps) {
   const countFor = (id: string) =>
-    captures.filter((c) => c.clusterId === id && c.status === "clustered").length;
+    captures.filter((c) => c.clusterId === id && c.status === "clustered")
+      .length;
 
   const projects = clusters.filter((c) => c.category === "project");
   const topics = clusters.filter((c) => c.category === "topic");
@@ -139,15 +221,14 @@ export function Sidebar({
     startW: SIDEBAR_DEFAULT,
   });
 
-  // Hydrate from localStorage on mount. SSR must render with the default
-  // width, so the post-hydration setState is deliberate — this is the
-  // documented pattern for reading client-only storage without a hydration
-  // mismatch.
   useEffect(() => {
     try {
       const raw = localStorage.getItem(SIDEBAR_WIDTH_KEY);
       if (raw) {
-        const parsed = Math.max(SIDEBAR_MIN, Math.min(SIDEBAR_MAX, Number(raw)));
+        const parsed = Math.max(
+          SIDEBAR_MIN,
+          Math.min(SIDEBAR_MAX, Number(raw))
+        );
         if (!Number.isNaN(parsed)) {
           // eslint-disable-next-line react-hooks/set-state-in-effect
           setWidth(parsed);
@@ -194,8 +275,6 @@ export function Sidebar({
     persistWidth(width);
   };
 
-  // Clicking a cluster tile now opens the action panel directly — and also
-  // marks it selected so the feed filters when the user switches to Stream.
   const handleClusterClick = (c: Cluster) => {
     onClusterSelect(c.id);
     onClusterAction(c);
@@ -218,21 +297,39 @@ export function Sidebar({
           className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg transition-all text-left cursor-pointer"
           style={
             selectedClusterId === null
-              ? { background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }
-              : { background: "transparent", border: "1px solid transparent" }
+              ? {
+                  background: "rgba(255,255,255,0.06)",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                }
+              : {
+                  background: "transparent",
+                  border: "1px solid transparent",
+                }
           }
         >
-          <Inbox className="w-3.5 h-3.5" style={{ color: selectedClusterId === null ? "#fff" : "var(--syn-slate)" }} />
+          <Inbox
+            className="w-3.5 h-3.5"
+            style={{
+              color:
+                selectedClusterId === null ? "#fff" : "var(--syn-slate)",
+            }}
+          />
           <span
             className="text-xs font-medium flex-1 truncate"
-            style={{ color: selectedClusterId === null ? "#fff" : "var(--syn-ash)" }}
+            style={{
+              color:
+                selectedClusterId === null ? "#fff" : "var(--syn-ash)",
+            }}
           >
             All Captures
           </span>
           <span
             className="text-[10px] font-mono px-1.5 py-0.5 rounded-full shrink-0"
             style={{
-              background: selectedClusterId === null ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.05)",
+              background:
+                selectedClusterId === null
+                  ? "rgba(255,255,255,0.1)"
+                  : "rgba(255,255,255,0.05)",
               color: selectedClusterId === null ? "#fff" : "var(--syn-slate)",
             }}
           >
@@ -242,16 +339,18 @@ export function Sidebar({
       </div>
 
       {/* Divider */}
-      <div className="mx-4 mb-3" style={{ height: "1px", background: "var(--syn-border)" }} />
+      <div
+        className="mx-4 mb-3"
+        style={{ height: "1px", background: "var(--syn-border)" }}
+      />
 
       {/* Projects */}
       <div className="px-2 mb-1">
-        <p
-          className="px-2 text-[10px] font-semibold uppercase tracking-widest mb-2"
-          style={{ color: "var(--syn-slate)", fontFamily: "var(--font-geist-mono)" }}
-        >
-          Projects
-        </p>
+        <SectionHeader
+          title="Projects"
+          addLabel="New project"
+          onAdd={() => onRequestCreateCluster("project")}
+        />
         {projects.map((c) => (
           <ClusterRow
             key={c.id}
@@ -266,12 +365,11 @@ export function Sidebar({
 
       {/* Topics */}
       <div className="px-2 mt-3">
-        <p
-          className="px-2 text-[10px] font-semibold uppercase tracking-widest mb-2"
-          style={{ color: "var(--syn-slate)", fontFamily: "var(--font-geist-mono)" }}
-        >
-          Topics
-        </p>
+        <SectionHeader
+          title="Topics"
+          addLabel="New topic"
+          onAdd={() => onRequestCreateCluster("topic")}
+        />
         {topics.map((c) => (
           <ClusterRow
             key={c.id}
@@ -310,7 +408,8 @@ export function Sidebar({
         }}
         onMouseLeave={(e) => {
           if (!dragging)
-            (e.currentTarget as HTMLDivElement).style.background = "transparent";
+            (e.currentTarget as HTMLDivElement).style.background =
+              "transparent";
         }}
       />
     </aside>

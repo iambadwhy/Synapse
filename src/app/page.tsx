@@ -1,13 +1,12 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
-import { Capture, Cluster, CaptureType } from "@/lib/types";
+import { Capture, Cluster, CaptureType, ClusterCategory } from "@/lib/types";
 import {
   CLUSTERS,
   INITIAL_CAPTURES,
-  CLUSTER_ORDER,
   inferCluster,
   getInferenceReason,
 } from "@/lib/data";
@@ -19,23 +18,38 @@ import { CaptureCard } from "@/components/CaptureCard";
 import { ActionPanel } from "@/components/ActionPanel";
 import { CaptureInspector } from "@/components/CaptureInspector";
 import { CommandLauncher } from "@/components/CommandLauncher";
+import { ClusterCreator } from "@/components/ClusterCreator";
 import { MapView } from "@/components/MapView";
-import { Sparkles } from "lucide-react";
+import { Sparkles, ArrowUpDown, Check } from "lucide-react";
 
 let idCounter = 100;
 function nextId() {
   return `c${++idCounter}`;
 }
 
+type SortMode = "newest" | "oldest" | "cluster";
+
 export default function Home() {
   const [view, setView] = useState<"feed" | "map">("feed");
+  const [clusters, setClusters] = useState<Cluster[]>(CLUSTERS);
   const [captures, setCaptures] = useState<Capture[]>(INITIAL_CAPTURES);
-  const [selectedClusterId, setSelectedClusterId] = useState<string | null>(null);
-  const [recentlyRoutedClusterId, setRecentlyRoutedClusterId] = useState<string | null>(null);
+  const [selectedClusterId, setSelectedClusterId] = useState<string | null>(
+    null
+  );
+  const [recentlyRoutedClusterId, setRecentlyRoutedClusterId] = useState<
+    string | null
+  >(null);
 
-  // Action panel
+  // Feed sort
+  const [sortMode, setSortMode] = useState<SortMode>("newest");
+  const [sortOpen, setSortOpen] = useState(false);
+
+  // Action panel — store by id so the rendered cluster stays in sync
+  // automatically when `clusters` mutates (rename, etc.).
   const [actionPanelOpen, setActionPanelOpen] = useState(false);
-  const [actionPanelCluster, setActionPanelCluster] = useState<Cluster | null>(null);
+  const [actionPanelClusterId, setActionPanelClusterId] = useState<
+    string | null
+  >(null);
 
   // Capture inspector (from Map view satellite clicks)
   const [inspectedCapture, setInspectedCapture] = useState<Capture | null>(null);
@@ -51,6 +65,11 @@ export default function Home() {
 
   // ⌘K command launcher
   const [commandOpen, setCommandOpen] = useState(false);
+
+  // Cluster creator modal
+  const [clusterCreatorOpen, setClusterCreatorOpen] = useState(false);
+  const [clusterCreatorCategory, setClusterCreatorCategory] =
+    useState<ClusterCategory>("project");
 
   // Global ⌘K / Ctrl+K to toggle quick-capture.
   useEffect(() => {
@@ -100,7 +119,6 @@ export default function Home() {
             c.id === newCapture.id ? { ...c, status: "clustered" } : c
           )
         );
-        // Highlight the cluster in sidebar
         setRecentlyRoutedClusterId(clusterId);
         setTimeout(() => setRecentlyRoutedClusterId(null), 2000);
       }, 1800);
@@ -108,9 +126,45 @@ export default function Home() {
     []
   );
 
+  // ── Capture mutations ──────────────────────────────
+  const handleEditCapture = useCallback(
+    (id: string, content: string, tags?: string[]) => {
+      setCaptures((prev) =>
+        prev.map((c) =>
+          c.id === id ? { ...c, content, tags: tags ?? c.tags } : c
+        )
+      );
+    },
+    []
+  );
+
+  const handleDeleteCapture = useCallback((id: string) => {
+    setCaptures((prev) => prev.filter((c) => c.id !== id));
+  }, []);
+
+  const handleMoveCapture = useCallback(
+    (id: string, targetClusterId: string) => {
+      setCaptures((prev) =>
+        prev.map((c) =>
+          c.id === id
+            ? {
+                ...c,
+                clusterId: targetClusterId,
+                // Mark the reason as user-overridden so the why-popover is honest.
+                inferenceReason: "Manually moved by you → " + targetClusterId,
+              }
+            : c
+        )
+      );
+      setRecentlyRoutedClusterId(targetClusterId);
+      setTimeout(() => setRecentlyRoutedClusterId(null), 1400);
+    },
+    []
+  );
+
   // ── Cluster interactions ───────────────────────────
   const handleClusterAction = useCallback((cluster: Cluster) => {
-    setActionPanelCluster(cluster);
+    setActionPanelClusterId(cluster.id);
     setActionPanelOpen(true);
     setTweakMode(false);
   }, []);
@@ -121,20 +175,33 @@ export default function Home() {
 
   const handleOpenClusterFromInspector = useCallback((cluster: Cluster) => {
     setInspectedCapture(null);
-    setActionPanelCluster(cluster);
+    setActionPanelClusterId(cluster.id);
     setActionPanelOpen(true);
     setTweakMode(false);
   }, []);
 
+  const handleCreateCluster = useCallback((newCluster: Cluster) => {
+    setClusters((prev) => [...prev, newCluster]);
+  }, []);
+
+  const handleOpenClusterCreator = useCallback((cat: ClusterCategory) => {
+    setClusterCreatorCategory(cat);
+    setClusterCreatorOpen(true);
+  }, []);
+
   const handleAccept = useCallback(() => {
-    if (!actionPanelCluster) return;
+    const current =
+      actionPanelClusterId !== null
+        ? clusters.find((c) => c.id === actionPanelClusterId)
+        : null;
+    if (!current) return;
     setActionPanelOpen(false);
 
-    const msg = `Task added: ${actionPanelCluster.nextStep.slice(0, 60)}…`;
+    const msg = `Task added: ${current.nextStep.slice(0, 60)}…`;
     setAcceptedToast(msg);
     if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
     toastTimerRef.current = setTimeout(() => setAcceptedToast(null), 3500);
-  }, [actionPanelCluster]);
+  }, [actionPanelClusterId, clusters]);
 
   const handleTweak = useCallback(() => {
     setTweakMode((v) => !v);
@@ -144,12 +211,9 @@ export default function Home() {
   const handleRunDemo = useCallback(() => {
     if (demoRunning) return;
     setDemoRunning(true);
-    // Clear any stale timers from a previous run.
     demoTimersRef.current.forEach((t) => clearTimeout(t));
     demoTimersRef.current = [];
 
-    // Three captures that route to three distinct clusters (accessibility,
-    // Thesis, Channel) so the auto-routing animation is legible end-to-end.
     const demoCaptures: Array<{
       delay: number;
       content: string;
@@ -187,8 +251,6 @@ export default function Home() {
       demoTimersRef.current.push(t);
     });
 
-    // Unlock the button once the last capture has finished animating in
-    // (delay + the 1.8s processing-to-clustered transition in handleCapture).
     const unlock = setTimeout(() => {
       setDemoRunning(false);
       demoTimersRef.current = [];
@@ -196,15 +258,59 @@ export default function Home() {
     demoTimersRef.current.push(unlock);
   }, [demoRunning, handleCapture]);
 
-  // ── Filtered captures for the feed ────────────────
-  const visibleCaptures = selectedClusterId
-    ? captures.filter((c) => c.clusterId === selectedClusterId)
-    : captures;
+  // ── Filtered + sorted captures for the feed ────────
+  const clusterMap = useMemo(
+    () => Object.fromEntries(clusters.map((c) => [c.id, c])) as Record<
+      string,
+      Cluster
+    >,
+    [clusters]
+  );
 
-  const clusterMap = Object.fromEntries(CLUSTERS.map((c) => [c.id, c]));
+  // Derive the currently-displayed action-panel cluster from its id — keeps
+  // the panel in sync automatically when `clusters` mutates (e.g. a rename
+  // via the creator), no sync effect needed.
+  const actionPanelCluster: Cluster | null = actionPanelClusterId
+    ? clusterMap[actionPanelClusterId] ?? null
+    : null;
+
+  const clusterRank = useMemo(() => {
+    const rank = new Map<string, number>();
+    clusters.forEach((c, i) => rank.set(c.id, i));
+    return rank;
+  }, [clusters]);
+
+  const visibleCaptures = useMemo(() => {
+    const filtered = selectedClusterId
+      ? captures.filter((c) => c.clusterId === selectedClusterId)
+      : captures;
+    const sorted = [...filtered];
+    if (sortMode === "newest") {
+      sorted.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+    } else if (sortMode === "oldest") {
+      sorted.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+    } else if (sortMode === "cluster") {
+      sorted.sort((a, b) => {
+        const ra = clusterRank.get(a.clusterId) ?? 99;
+        const rb = clusterRank.get(b.clusterId) ?? 99;
+        if (ra !== rb) return ra - rb;
+        return b.timestamp.getTime() - a.timestamp.getTime();
+      });
+    }
+    return sorted;
+  }, [captures, selectedClusterId, sortMode, clusterRank]);
+
+  const sortLabels: Record<SortMode, string> = {
+    newest: "Newest first",
+    oldest: "Oldest first",
+    cluster: "By cluster",
+  };
 
   return (
-    <div className="h-full flex flex-col" style={{ background: "var(--syn-bg)" }}>
+    <div
+      className="h-full flex flex-col"
+      style={{ background: "var(--syn-bg)" }}
+    >
       <TopNav
         view={view}
         onViewChange={setView}
@@ -215,16 +321,17 @@ export default function Home() {
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
         <Sidebar
-          clusters={CLUSTERS}
+          clusters={clusters}
           captures={captures}
           selectedClusterId={selectedClusterId}
           recentlyRoutedClusterId={recentlyRoutedClusterId}
           onClusterSelect={setSelectedClusterId}
           onClusterAction={handleClusterAction}
+          onRequestCreateCluster={handleOpenClusterCreator}
         />
 
         {/* Main content */}
-        <main className="flex-1 overflow-hidden flex flex-col">
+        <main className="flex-1 overflow-hidden flex flex-col min-w-0">
           {view === "feed" ? (
             <>
               {/* Capture bar — sticky */}
@@ -234,44 +341,121 @@ export default function Home() {
 
               {/* Feed */}
               <div className="flex-1 overflow-y-auto px-4 pb-6">
-                {/* Filter banner */}
-                {selectedClusterId && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="flex items-center gap-2 px-3 py-2 rounded-lg mb-3"
-                    style={{
-                      background: `${clusterMap[selectedClusterId]?.color}10`,
-                      border: `1px solid ${clusterMap[selectedClusterId]?.color}25`,
-                    }}
-                  >
-                    <span
-                      className="w-2 h-2 rounded-full"
-                      style={{ background: clusterMap[selectedClusterId]?.color }}
-                    />
-                    <span className="text-xs font-medium text-white flex-1">
-                      {clusterMap[selectedClusterId]?.name}
-                    </span>
-                    <button
-                      onClick={() => setSelectedClusterId(null)}
-                      className="text-[10px] cursor-pointer"
-                      style={{ color: "var(--syn-slate)" }}
+                {/* Filter + sort row */}
+                <div className="flex items-center gap-2 mb-3">
+                  {selectedClusterId && clusterMap[selectedClusterId] && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="flex items-center gap-2 px-3 py-2 rounded-lg flex-1 min-w-0"
+                      style={{
+                        background: `${clusterMap[selectedClusterId].color}10`,
+                        border: `1px solid ${clusterMap[selectedClusterId].color}25`,
+                      }}
                     >
-                      Clear filter ×
+                      <span
+                        className="w-2 h-2 rounded-full shrink-0"
+                        style={{
+                          background: clusterMap[selectedClusterId].color,
+                        }}
+                      />
+                      <span className="text-xs font-medium text-white flex-1 truncate">
+                        {clusterMap[selectedClusterId].name}
+                      </span>
+                      <button
+                        onClick={() => setSelectedClusterId(null)}
+                        className="text-[10px] cursor-pointer"
+                        style={{ color: "var(--syn-slate)" }}
+                      >
+                        Clear filter ×
+                      </button>
+                    </motion.div>
+                  )}
+
+                  {/* Sort dropdown (always visible) */}
+                  <div className="relative ml-auto">
+                    <button
+                      onClick={() => setSortOpen((v) => !v)}
+                      aria-label="Sort captures"
+                      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-mono cursor-pointer"
+                      style={{
+                        background: "rgba(255,255,255,0.03)",
+                        border: "1px solid var(--syn-border)",
+                        color: "var(--syn-slate)",
+                      }}
+                    >
+                      <ArrowUpDown className="w-3 h-3" />
+                      {sortLabels[sortMode]}
                     </button>
-                  </motion.div>
-                )}
+                    <AnimatePresence>
+                      {sortOpen && (
+                        <>
+                          <div
+                            className="fixed inset-0 z-30"
+                            onClick={() => setSortOpen(false)}
+                          />
+                          <motion.div
+                            initial={{ opacity: 0, y: -4 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -4 }}
+                            transition={{ duration: 0.12 }}
+                            className="absolute right-0 top-full mt-1.5 z-40 rounded-lg overflow-hidden shadow-xl"
+                            style={{
+                              background: "var(--syn-surface-2)",
+                              border: "1px solid var(--syn-border)",
+                              minWidth: "160px",
+                            }}
+                          >
+                            {(
+                              ["newest", "oldest", "cluster"] as SortMode[]
+                            ).map((mode) => (
+                              <button
+                                key={mode}
+                                onClick={() => {
+                                  setSortMode(mode);
+                                  setSortOpen(false);
+                                }}
+                                className="w-full flex items-center gap-2 px-3 py-2 text-left text-xs cursor-pointer hover:bg-[rgba(255,255,255,0.04)]"
+                                style={{ color: "var(--syn-ash)" }}
+                              >
+                                <Check
+                                  className="w-3 h-3 shrink-0"
+                                  style={{
+                                    color:
+                                      sortMode === mode
+                                        ? "var(--syn-indigo)"
+                                        : "transparent",
+                                  }}
+                                />
+                                {sortLabels[mode]}
+                              </button>
+                            ))}
+                          </motion.div>
+                        </>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                </div>
 
                 {/* Empty state */}
                 {visibleCaptures.length === 0 && (
                   <div className="flex flex-col items-center justify-center py-20 gap-3">
                     <div
                       className="w-12 h-12 rounded-2xl flex items-center justify-center"
-                      style={{ background: "rgba(99,102,241,0.08)", border: "1px solid rgba(99,102,241,0.2)" }}
+                      style={{
+                        background: "rgba(99,102,241,0.08)",
+                        border: "1px solid rgba(99,102,241,0.2)",
+                      }}
                     >
-                      <Sparkles className="w-5 h-5" style={{ color: "var(--syn-indigo)" }} />
+                      <Sparkles
+                        className="w-5 h-5"
+                        style={{ color: "var(--syn-indigo)" }}
+                      />
                     </div>
-                    <p className="text-sm" style={{ color: "var(--syn-slate)" }}>
+                    <p
+                      className="text-sm"
+                      style={{ color: "var(--syn-slate)" }}
+                    >
                       No captures yet — start typing above
                     </p>
                   </div>
@@ -284,6 +468,13 @@ export default function Home() {
                       key={capture.id}
                       capture={capture}
                       cluster={clusterMap[capture.clusterId]}
+                      clusters={clusters}
+                      onEdit={handleEditCapture}
+                      onDelete={handleDeleteCapture}
+                      onMove={handleMoveCapture}
+                      onRequestNewCluster={() =>
+                        handleOpenClusterCreator("topic")
+                      }
                     />
                   ))}
                 </AnimatePresence>
@@ -293,7 +484,7 @@ export default function Home() {
             /* Map view */
             <div className="flex-1 overflow-hidden">
               <MapView
-                clusters={CLUSTERS}
+                clusters={clusters}
                 captures={captures}
                 onClusterClick={handleClusterAction}
                 onCaptureClick={handleCaptureClick}
@@ -301,17 +492,17 @@ export default function Home() {
             </div>
           )}
         </main>
-      </div>
 
-      {/* Action Panel */}
-      <ActionPanel
-        open={actionPanelOpen}
-        cluster={actionPanelCluster}
-        captures={captures}
-        onClose={() => setActionPanelOpen(false)}
-        onAccept={handleAccept}
-        onTweak={handleTweak}
-      />
+        {/* Action Panel — now an in-flow third column, not an overlay */}
+        <ActionPanel
+          open={actionPanelOpen}
+          cluster={actionPanelCluster}
+          captures={captures}
+          onClose={() => setActionPanelOpen(false)}
+          onAccept={handleAccept}
+          onTweak={handleTweak}
+        />
+      </div>
 
       {/* ⌘K Command launcher */}
       <CommandLauncher
@@ -320,6 +511,14 @@ export default function Home() {
         onCapture={handleCapture}
         clusterNameFor={(id) => clusterMap[id]?.name}
         clusterColorFor={(id) => clusterMap[id]?.color}
+      />
+
+      {/* Cluster creator modal */}
+      <ClusterCreator
+        open={clusterCreatorOpen}
+        defaultCategory={clusterCreatorCategory}
+        onClose={() => setClusterCreatorOpen(false)}
+        onCreate={handleCreateCluster}
       />
 
       {/* Capture Inspector (satellite node click in Map view) */}
@@ -346,7 +545,10 @@ export default function Home() {
               width: "320px",
             }}
           >
-            <p className="text-[10px] font-mono mb-2" style={{ color: "var(--syn-indigo)" }}>
+            <p
+              className="text-[10px] font-mono mb-2"
+              style={{ color: "var(--syn-indigo)" }}
+            >
               Edit the suggested prompt
             </p>
             <textarea
@@ -359,7 +561,10 @@ export default function Home() {
               <button
                 onClick={() => setTweakMode(false)}
                 className="px-3 py-1.5 rounded-lg text-xs cursor-pointer"
-                style={{ background: "rgba(255,255,255,0.05)", color: "var(--syn-slate)" }}
+                style={{
+                  background: "rgba(255,255,255,0.05)",
+                  color: "var(--syn-slate)",
+                }}
               >
                 Cancel
               </button>
@@ -395,10 +600,19 @@ export default function Home() {
               style={{ background: "var(--syn-mint)" }}
             >
               <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
-                <path d="M1 4L3.5 6.5L9 1" stroke="black" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                <path
+                  d="M1 4L3.5 6.5L9 1"
+                  stroke="black"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
               </svg>
             </span>
-            <p className="text-xs max-w-xs" style={{ color: "var(--syn-mint)" }}>
+            <p
+              className="text-xs max-w-xs"
+              style={{ color: "var(--syn-mint)" }}
+            >
               {acceptedToast}
             </p>
           </motion.div>

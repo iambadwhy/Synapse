@@ -11,6 +11,14 @@ export interface Cluster {
   description: string;
   synthesis: string;
   nextStep: string;
+  /**
+   * Optional Lucide icon name for user-created clusters. Built-in clusters
+   * have their icon hard-coded by id in Sidebar.tsx; anything with this
+   * field falls back through the dynamic icon registry.
+   */
+  icon?: string;
+  /** Marks clusters created at runtime by the user. */
+  custom?: boolean;
 }
 
 export interface Capture {
