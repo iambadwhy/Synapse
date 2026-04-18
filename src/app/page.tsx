@@ -40,10 +40,11 @@ export default function Home() {
     string | null
   >(null);
 
-  // Feed sort + completed filter
+  // Feed sort + completed filter + search
   const [sortMode, setSortMode] = useState<SortMode>("newest");
   const [sortOpen, setSortOpen] = useState(false);
   const [hideCompleted, setHideCompleted] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Action panel — store by id so the rendered cluster stays in sync
   // automatically when `clusters` mutates (rename, etc.).
@@ -305,6 +306,22 @@ export default function Home() {
     if (hideCompleted) {
       filtered = filtered.filter((c) => !c.completedAt);
     }
+    const q = searchQuery.trim().toLowerCase();
+    if (q) {
+      filtered = filtered.filter((c) => {
+        const hay = [
+          c.content,
+          c.inferenceReason,
+          c.linkTitle ?? "",
+          c.linkDomain ?? "",
+          clusterMap[c.clusterId]?.name ?? "",
+          ...c.tags,
+        ]
+          .join(" ")
+          .toLowerCase();
+        return hay.includes(q);
+      });
+    }
     const sorted = [...filtered];
     if (sortMode === "newest") {
       sorted.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
@@ -319,7 +336,7 @@ export default function Home() {
       });
     }
     return sorted;
-  }, [captures, selectedClusterId, sortMode, hideCompleted, clusterRank]);
+  }, [captures, selectedClusterId, sortMode, hideCompleted, searchQuery, clusterMap, clusterRank]);
 
   const completedCount = useMemo(
     () => captures.filter((c) => !!c.completedAt).length,
@@ -342,6 +359,8 @@ export default function Home() {
         onViewChange={setView}
         onRunDemo={handleRunDemo}
         demoRunning={demoRunning}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
       />
 
       <div className="flex flex-1 overflow-hidden">
@@ -516,7 +535,9 @@ export default function Home() {
                       className="text-sm"
                       style={{ color: "var(--syn-slate)" }}
                     >
-                      No captures yet — start typing above
+                      {searchQuery.trim()
+                        ? `No captures match "${searchQuery.trim()}"`
+                        : "No captures yet — start typing above"}
                     </p>
                   </div>
                 )}

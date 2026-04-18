@@ -350,38 +350,45 @@ export function MapView({
   }, [captures, clusters]);
 
   /* ── Rasterize cluster icons to bitmap images ────── *
-   * Lucide components can't be drawn directly to canvas. Serialize each
-   * cluster's icon to an SVG string once, turn it into an HTMLImageElement,
-   * then drawImage at the node centre in the render loop. */
+   * Lucide components can't be drawn directly to canvas. We pre-render
+   * each cluster's icon twice — once white (for the tinted cluster fill)
+   * and once in the cluster's accent colour (so the icon stays visible
+   * when the fill flips to white on hover). Keyed per cluster id. */
   const iconImagesRef = useRef<Map<string, HTMLImageElement>>(new Map());
+  const iconImagesHoverRef = useRef<Map<string, HTMLImageElement>>(new Map());
   const [, forceIconRerender] = useState(0);
   useEffect(() => {
     let cancelled = false;
     const cache = iconImagesRef.current;
-    for (const cluster of clusters) {
-      if (cache.has(cluster.id)) continue;
-      const Icon = resolveClusterIcon(cluster);
+    const cacheHover = iconImagesHoverRef.current;
+
+    const rasterize = (
+      key: string,
+      store: Map<string, HTMLImageElement>,
+      Icon: typeof Folder,
+      color: string
+    ) => {
+      if (store.has(key)) return;
       const svg = renderToStaticMarkup(
-        createElement(Icon, {
-          color: "#FFFFFF",
-          size: 24,
-          strokeWidth: 2.2,
-        })
+        createElement(Icon, { color, size: 24, strokeWidth: 2.2 })
       );
       const blob = new Blob([svg], { type: "image/svg+xml" });
       const url = URL.createObjectURL(blob);
       const img = new Image();
       img.onload = () => {
         if (cancelled) return;
-        cache.set(cluster.id, img);
+        store.set(key, img);
         URL.revokeObjectURL(url);
-        /* Nudge a re-render so the draw loop picks up the new image —
-         * the RAF loop reads from the ref anyway, but this ensures the
-         * effect runs at least once in case the loop is idle. */
         forceIconRerender((v) => v + 1);
       };
       img.onerror = () => URL.revokeObjectURL(url);
       img.src = url;
+    };
+
+    for (const cluster of clusters) {
+      const Icon = resolveClusterIcon(cluster);
+      rasterize(cluster.id, cache, Icon, "#FFFFFF");
+      rasterize(cluster.id, cacheHover, Icon, cluster.color);
     }
     return () => {
       cancelled = true;
@@ -545,18 +552,21 @@ export function MapView({
           }
         }
 
-        /* Rasterized icon on cluster nodes. The icon is pre-rendered white,
-         * which reads well on the tinted cluster fill. On hover the fill
-         * flips to white (white-on-white would vanish) so we skip the icon
-         * there — the hover state is already distinct from the glow and
-         * size bump. */
-        if (n.kind === "cluster" && !isHover) {
-          const img = iconImages.get(n.id);
+        /* Rasterized icon on cluster nodes. Two pre-rendered variants: the
+         * white glyph on the tinted cluster fill, or the colour-matched
+         * glyph on the white hover fill — either way the icon stays
+         * visible. */
+        if (n.kind === "cluster") {
+          const img = isHover
+            ? iconImagesHoverRef.current.get(n.id)
+            : iconImages.get(n.id);
           if (img && img.complete && img.naturalWidth > 0) {
             const iconSize = Math.max(12, radius * 0.9);
             const half = iconSize / 2;
             ctx.save();
-            ctx.globalAlpha = dimmed ? 0.4 : 0.95;
+            if (dimmed) ctx.globalAlpha = 0.4;
+            else if (isHover) ctx.globalAlpha = 1;
+            else ctx.globalAlpha = 0.95;
             ctx.drawImage(img, n.x - half, n.y - half, iconSize, iconSize);
             ctx.restore();
           }

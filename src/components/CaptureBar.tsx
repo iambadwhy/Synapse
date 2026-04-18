@@ -168,13 +168,7 @@ export function CaptureBar({ onCapture }: CaptureBarProps) {
   const linkValid = linkValue.trim().length > 2 && isValidUrl(linkValue);
 
   return (
-    <div
-      className="mx-4 mt-4 mb-2 rounded-2xl overflow-hidden"
-      style={{
-        background: "var(--syn-surface)",
-        border: "1px solid var(--syn-border)",
-      }}
-    >
+    <div className="capture-bar mx-4 mt-4 mb-2 rounded-2xl overflow-hidden">
       {/* Mode tabs */}
       <div
         className="flex items-center gap-0 px-3 pt-3 pb-0"
@@ -207,7 +201,7 @@ export function CaptureBar({ onCapture }: CaptureBarProps) {
       <div className="p-3">
         {/* ── TEXT ─── */}
         {mode === "text" && (
-          <div className="flex gap-2 items-end">
+          <div className="relative">
             <textarea
               ref={textareaRef}
               value={textValue}
@@ -215,16 +209,15 @@ export function CaptureBar({ onCapture }: CaptureBarProps) {
               onKeyDown={handleTextKeyDown}
               placeholder="Capture a thought, idea, or note…"
               rows={2}
-              className="flex-1 resize-none bg-transparent text-sm outline-none placeholder:text-[var(--syn-slate)] text-[var(--syn-dim)] leading-relaxed"
+              className="w-full resize-none bg-transparent text-sm outline-none placeholder:text-[var(--syn-slate)] text-[var(--syn-dim)] leading-relaxed pr-14 min-h-[3.5rem]"
             />
             <button
               onClick={handleSubmit}
               disabled={!canSubmit}
               aria-label="Capture text"
-              className="shrink-0 w-8 h-8 rounded-lg flex items-center justify-center transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
-              style={{ background: canSubmit ? "var(--syn-indigo)" : "rgba(255,255,255,0.05)" }}
+              className="capture-submit absolute right-0 bottom-0 w-10 h-10 rounded-xl flex items-center justify-center cursor-pointer disabled:cursor-not-allowed"
             >
-              <Send className="w-3.5 h-3.5 text-white" />
+              <Send className="w-4 h-4 text-white" />
             </button>
           </div>
         )}
@@ -247,8 +240,7 @@ export function CaptureBar({ onCapture }: CaptureBarProps) {
                 onClick={handleSubmit}
                 disabled={!canSubmit}
                 aria-label="Capture link"
-                className="shrink-0 w-8 h-8 rounded-lg flex items-center justify-center transition-all cursor-pointer disabled:opacity-30"
-                style={{ background: canSubmit ? "var(--syn-indigo)" : "rgba(255,255,255,0.05)" }}
+                className="capture-submit shrink-0 w-9 h-9 rounded-xl flex items-center justify-center cursor-pointer disabled:cursor-not-allowed"
               >
                 <Send className="w-3.5 h-3.5 text-white" />
               </button>

@@ -1,15 +1,24 @@
 "use client";
 
-import { LayoutGrid, Globe, Settings, Zap, Play, Loader2 } from "lucide-react";
+import { LayoutGrid, Globe, Settings, Zap, Play, Loader2, Search, X } from "lucide-react";
 
 interface TopNavProps {
   view: "feed" | "map";
   onViewChange: (v: "feed" | "map") => void;
   onRunDemo?: () => void;
   demoRunning?: boolean;
+  searchQuery: string;
+  onSearchChange: (q: string) => void;
 }
 
-export function TopNav({ view, onViewChange, onRunDemo, demoRunning }: TopNavProps) {
+export function TopNav({
+  view,
+  onViewChange,
+  onRunDemo,
+  demoRunning,
+  searchQuery,
+  onSearchChange,
+}: TopNavProps) {
   return (
     <header
       className="h-14 flex items-center px-5 gap-4 z-30 shrink-0"
@@ -35,37 +44,67 @@ export function TopNav({ view, onViewChange, onRunDemo, demoRunning }: TopNavPro
         </span>
       </div>
 
-      {/* Centre: view toggle */}
-      <div className="flex-1 flex justify-center">
-        <div
-          className="flex gap-0.5 rounded-lg p-1"
-          style={{ background: "rgba(255,255,255,0.05)" }}
+      {/* Search */}
+      <div
+        className="relative flex-1 max-w-md flex items-center rounded-lg focus-within:ring-1 focus-within:ring-[rgba(99,102,241,0.35)] transition-all"
+        style={{
+          background: "rgba(255,255,255,0.03)",
+          border: "1px solid var(--syn-border)",
+        }}
+      >
+        <Search
+          className="w-3.5 h-3.5 ml-2.5 shrink-0"
+          style={{ color: "var(--syn-slate)" }}
+        />
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => onSearchChange(e.target.value)}
+          placeholder="Search captures, tags, reasons…"
+          className="flex-1 bg-transparent text-xs outline-none px-2 py-1.5 text-[var(--syn-dim)] placeholder:text-[var(--syn-slate)]"
+          aria-label="Search captures"
+        />
+        {searchQuery && (
+          <button
+            onClick={() => onSearchChange("")}
+            aria-label="Clear search"
+            className="mr-1.5 p-0.5 rounded cursor-pointer hover:bg-[rgba(255,255,255,0.06)]"
+            style={{ color: "var(--syn-slate)" }}
+          >
+            <X className="w-3 h-3" />
+          </button>
+        )}
+      </div>
+
+      {/* View toggle */}
+      <div
+        className="flex gap-0.5 rounded-lg p-1"
+        style={{ background: "rgba(255,255,255,0.05)" }}
+      >
+        <button
+          onClick={() => onViewChange("feed")}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all cursor-pointer"
+          style={
+            view === "feed"
+              ? { background: "rgba(255,255,255,0.09)", color: "#fff" }
+              : { color: "var(--syn-slate)" }
+          }
         >
-          <button
-            onClick={() => onViewChange("feed")}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all cursor-pointer"
-            style={
-              view === "feed"
-                ? { background: "rgba(255,255,255,0.09)", color: "#fff" }
-                : { color: "var(--syn-slate)" }
-            }
-          >
-            <LayoutGrid className="w-3.5 h-3.5" />
-            Stream
-          </button>
-          <button
-            onClick={() => onViewChange("map")}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all cursor-pointer"
-            style={
-              view === "map"
-                ? { background: "rgba(255,255,255,0.09)", color: "#fff" }
-                : { color: "var(--syn-slate)" }
-            }
-          >
-            <Globe className="w-3.5 h-3.5" />
-            Map
-          </button>
-        </div>
+          <LayoutGrid className="w-3.5 h-3.5" />
+          Stream
+        </button>
+        <button
+          onClick={() => onViewChange("map")}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all cursor-pointer"
+          style={
+            view === "map"
+              ? { background: "rgba(255,255,255,0.09)", color: "#fff" }
+              : { color: "var(--syn-slate)" }
+          }
+        >
+          <Globe className="w-3.5 h-3.5" />
+          Map
+        </button>
       </div>
 
       {/* Right: demo + settings */}
