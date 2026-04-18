@@ -4,7 +4,6 @@
 
 A working prototype for a multimodal thought-capture system that auto-clusters fragments into projects and topics, explains *why* each fragment landed where it did, and turns the cluster into a single next action.
 
-> Built in 48 hours as a Media & Communication Design Track submission.
 
 ---
 
