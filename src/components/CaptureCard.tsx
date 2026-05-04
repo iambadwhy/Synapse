@@ -271,8 +271,8 @@ export function CaptureCard({
               data-open={menuOpen}
               style={{
                 background: menuOpen
-                  ? "rgba(255,255,255,0.08)"
-                  : "rgba(255,255,255,0.03)",
+                  ? "var(--syn-overlay-3)"
+                  : "var(--syn-overlay-1)",
                 color: "var(--syn-slate)",
                 border: "1px solid var(--syn-border-subtle)",
               }}
@@ -352,7 +352,7 @@ export function CaptureCard({
                             setMoveMenuOpen(false);
                           }}
                           disabled={c.id === capture.clusterId}
-                          className="w-full flex items-center gap-2 px-3 py-1.5 text-left text-xs cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[rgba(255,255,255,0.04)]"
+                          className="w-full flex items-center gap-2 px-3 py-1.5 text-left text-xs cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[var(--syn-overlay-1)]"
                           style={{ color: "var(--syn-ash)" }}
                         >
                           <span
@@ -375,7 +375,7 @@ export function CaptureCard({
                           setMenuOpen(false);
                           setMoveMenuOpen(false);
                         }}
-                        className="w-full flex items-center gap-2 px-3 py-1.5 text-left text-xs cursor-pointer hover:bg-[rgba(255,255,255,0.04)]"
+                        className="w-full flex items-center gap-2 px-3 py-1.5 text-left text-xs cursor-pointer hover:bg-[var(--syn-overlay-1)]"
                         style={{
                           color: "var(--syn-indigo)",
                           borderTop: "1px solid var(--syn-border-subtle)",
@@ -400,7 +400,7 @@ export function CaptureCard({
                           onClick={() => setConfirmDelete(false)}
                           className="flex-1 px-2 py-1 rounded-md text-[11px] cursor-pointer"
                           style={{
-                            background: "rgba(255,255,255,0.05)",
+                            background: "var(--syn-overlay-2)",
                             color: "var(--syn-slate)",
                           }}
                         >
@@ -440,7 +440,7 @@ export function CaptureCard({
             autoFocus
             className="w-full px-3 py-2 text-sm outline-none resize-none rounded-lg leading-relaxed"
             style={{
-              background: "rgba(255,255,255,0.03)",
+              background: "var(--syn-overlay-1)",
               border: "1px solid rgba(99,102,241,0.3)",
               color: "var(--syn-dim)",
             }}
@@ -451,7 +451,7 @@ export function CaptureCard({
             placeholder="#tags space separated"
             className="mt-1.5 w-full px-3 py-1.5 text-[11px] font-mono outline-none rounded-lg"
             style={{
-              background: "rgba(255,255,255,0.03)",
+              background: "var(--syn-overlay-1)",
               border: "1px solid var(--syn-border-subtle)",
               color: "var(--syn-slate)",
             }}
@@ -461,7 +461,7 @@ export function CaptureCard({
               onClick={cancelEdit}
               className="flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] cursor-pointer"
               style={{
-                background: "rgba(255,255,255,0.05)",
+                background: "var(--syn-overlay-2)",
                 color: "var(--syn-slate)",
               }}
             >
@@ -483,7 +483,7 @@ export function CaptureCard({
           <div
             className="flex items-center gap-2 px-3 py-2.5 rounded-lg"
             style={{
-              background: "rgba(255,255,255,0.03)",
+              background: "var(--syn-overlay-1)",
               border: "1px solid var(--syn-border-subtle)",
             }}
           >
@@ -571,7 +571,7 @@ export function CaptureCard({
             style={{
               background: whyOpen
                 ? "rgba(99,102,241,0.12)"
-                : "rgba(255,255,255,0.04)",
+                : "var(--syn-overlay-1)",
               color: whyOpen ? "var(--syn-indigo)" : "var(--syn-slate)",
               border: whyOpen
                 ? "1px solid rgba(99,102,241,0.4)"
@@ -638,7 +638,7 @@ function MenuItem({
     <button
       role="menuitem"
       onClick={onClick}
-      className="w-full flex items-center gap-2 px-3 py-1.5 text-left text-xs cursor-pointer hover:bg-[rgba(255,255,255,0.04)]"
+      className="w-full flex items-center gap-2 px-3 py-1.5 text-left text-xs cursor-pointer hover:bg-[var(--syn-overlay-1)]"
       style={{
         color: danger ? "rgba(239,68,68,0.9)" : "var(--syn-ash)",
       }}

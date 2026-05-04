@@ -100,7 +100,7 @@ export function CommandLauncher({
             onClick={close}
             className="fixed inset-0 z-[60]"
             style={{
-              background: "rgba(0,0,0,0.55)",
+              background: "var(--syn-shadow-2)",
               backdropFilter: "blur(6px)",
             }}
           />
@@ -146,7 +146,7 @@ export function CommandLauncher({
               <kbd
                 className="text-[10px] font-mono px-1.5 py-0.5 rounded"
                 style={{
-                  background: "rgba(255,255,255,0.06)",
+                  background: "var(--syn-overlay-2)",
                   color: "var(--syn-slate)",
                   border: "1px solid var(--syn-border-subtle)",
                 }}
@@ -179,7 +179,7 @@ export function CommandLauncher({
               className="flex items-center gap-3 px-4 py-2.5"
               style={{
                 borderTop: "1px solid var(--syn-border-subtle)",
-                background: "rgba(255,255,255,0.02)",
+                background: "var(--syn-overlay-1)",
               }}
             >
               {/* Routing preview */}

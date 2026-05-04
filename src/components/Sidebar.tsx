@@ -145,7 +145,7 @@ function ClusterRow({
         <span
           className="text-[10px] font-mono tabular-nums px-1.5 py-0.5 rounded-full shrink-0"
           style={{
-            background: selected ? `${cluster.color}25` : "rgba(255,255,255,0.05)",
+            background: selected ? `${cluster.color}25` : "var(--syn-overlay-2)",
             color: selected ? cluster.color : "var(--syn-slate)",
           }}
         >
@@ -181,7 +181,7 @@ function SectionHeader({
         aria-label={addLabel}
         className="w-5 h-5 rounded-md flex items-center justify-center cursor-pointer transition-colors opacity-60 hover:opacity-100"
         style={{
-          background: "rgba(255,255,255,0.04)",
+          background: "var(--syn-overlay-1)",
           color: "var(--syn-slate)",
           border: "1px solid var(--syn-border-subtle)",
         }}
@@ -298,8 +298,8 @@ export function Sidebar({
           style={
             selectedClusterId === null
               ? {
-                  background: "rgba(255,255,255,0.06)",
-                  border: "1px solid rgba(255,255,255,0.08)",
+                  background: "var(--syn-overlay-2)",
+                  border: "1px solid var(--syn-overlay-3)",
                 }
               : {
                   background: "transparent",
@@ -328,8 +328,8 @@ export function Sidebar({
             style={{
               background:
                 selectedClusterId === null
-                  ? "rgba(255,255,255,0.1)"
-                  : "rgba(255,255,255,0.05)",
+                  ? "var(--syn-overlay-4)"
+                  : "var(--syn-overlay-2)",
               color: selectedClusterId === null ? "#fff" : "var(--syn-slate)",
             }}
           >

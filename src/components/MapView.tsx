@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback, createElement } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo, createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import {
   forceSimulation,
@@ -13,6 +13,7 @@ import {
   Simulation,
 } from "d3-force";
 import { Cluster, Capture } from "@/lib/types";
+import { useTheme } from "@/lib/theme";
 import {
   ZoomIn,
   ZoomOut,
@@ -187,6 +188,42 @@ export function MapView({
   const [hoverCluster, setHoverCluster] = useState<Cluster | null>(null);
   const [hoverCapture, setHoverCapture] = useState<Capture | null>(null);
   const [, forceRerender] = useState(0);
+
+  /* ── Theme-aware canvas palette ──────────────────────
+   * Canvas fillStyle/strokeStyle can't read CSS vars, so we mirror the
+   * minimal set of theme-dependent colors and re-render when theme flips. */
+  const [theme] = useTheme();
+  const palette = useMemo(
+    () =>
+      theme === "light"
+        ? {
+            nodeHighlight:    "#0F172A",
+            linkActive:       "rgba(15,23,42,0.85)",
+            labelHover:       "#0F172A",
+            labelDefault:     "rgba(15,23,42,0.62)",
+            labelDimmed:      "rgba(15,23,42,0.16)",
+            checkmarkDimmed:  "rgba(15,23,42,0.3)",
+            linkInactive:     "rgba(15,23,42,0.05)",
+            nodeDimmedFill:   "rgba(160,163,170,0.35)",
+            nodeDimmedSubtle: "rgba(160,163,170,0.22)",
+            ringFillDimmed:   "rgba(160,163,170,0.10)",
+            ringStrokeDimmed: "rgba(160,163,170,0.50)",
+          }
+        : {
+            nodeHighlight:    "#FFFFFF",
+            linkActive:       "rgba(255,255,255,0.95)",
+            labelHover:       "#FFFFFF",
+            labelDefault:     "rgba(255,255,255,0.65)",
+            labelDimmed:      "rgba(255,255,255,0.18)",
+            checkmarkDimmed:  "rgba(255,255,255,0.3)",
+            linkInactive:     "rgba(255,255,255,0.03)",
+            nodeDimmedFill:   "rgba(100,100,100,0.3)",
+            nodeDimmedSubtle: "rgba(100,100,100,0.2)",
+            ringFillDimmed:   "rgba(100,100,100,0.08)",
+            ringStrokeDimmed: "rgba(100,100,100,0.4)",
+          },
+    [theme],
+  );
 
   /* DOM ref for the floating node-label tooltip (updated imperatively each frame) */
   const labelRef = useRef<HTMLDivElement>(null);
@@ -470,10 +507,10 @@ export function MapView({
         const isConnected = hoverId !== null && (sId === hoverId || tId === hoverId);
 
         if (hoverId && !isConnected) {
-          ctx.strokeStyle = "rgba(255,255,255,0.04)";
+          ctx.strokeStyle = palette.linkInactive;
           ctx.lineWidth = 0.5 / t.k;
         } else if (isConnected) {
-          ctx.strokeStyle = "rgba(255,255,255,0.95)";
+          ctx.strokeStyle = palette.linkActive;
           ctx.lineWidth = 1.5 / t.k;
         } else {
           ctx.strokeStyle = `${l.color}55`;
@@ -512,14 +549,14 @@ export function MapView({
           /* Faint fill to keep it visible over dark canvas */
           ctx.beginPath();
           ctx.arc(n.x, n.y, radius, 0, Math.PI * 2);
-          ctx.fillStyle = dimmed ? "rgba(100,100,100,0.08)" : `${n.color}18`;
+          ctx.fillStyle = dimmed ? palette.ringFillDimmed : `${n.color}18`;
           ctx.fill();
           ctx.lineWidth = 1.5 / t.k;
-          ctx.strokeStyle = dimmed ? "rgba(100,100,100,0.4)" : `${n.color}99`;
+          ctx.strokeStyle = dimmed ? palette.ringStrokeDimmed : `${n.color}99`;
           ctx.stroke();
           /* Tiny check mark inside */
           ctx.lineWidth = 1.1 / t.k;
-          ctx.strokeStyle = dimmed ? "rgba(255,255,255,0.3)" : `${n.color}CC`;
+          ctx.strokeStyle = dimmed ? palette.checkmarkDimmed : `${n.color}CC`;
           ctx.beginPath();
           const cr = radius * 0.45;
           ctx.moveTo(n.x - cr, n.y);
@@ -530,10 +567,10 @@ export function MapView({
           ctx.beginPath();
           ctx.arc(n.x, n.y, radius, 0, Math.PI * 2);
           if (isHover) {
-            ctx.fillStyle = "#FFFFFF";
+            ctx.fillStyle = palette.nodeHighlight;
           } else if (dimmed) {
             ctx.fillStyle =
-              n.kind === "cluster" ? "rgba(100,100,100,0.3)" : "rgba(100,100,100,0.2)";
+              n.kind === "cluster" ? palette.nodeDimmedFill : palette.nodeDimmedSubtle;
           } else if (n.kind === "cluster") {
             ctx.fillStyle = `${n.color}D9`;
           } else {
@@ -543,11 +580,11 @@ export function MapView({
 
           if (n.kind === "cluster") {
             ctx.lineWidth = (isHover ? 2 : 1.5) / t.k;
-            ctx.strokeStyle = isHover ? "#FFFFFF" : `${n.color}AA`;
+            ctx.strokeStyle = isHover ? palette.nodeHighlight : `${n.color}AA`;
             ctx.stroke();
           } else if (isHover) {
             ctx.lineWidth = 1.2 / t.k;
-            ctx.strokeStyle = "#FFFFFF";
+            ctx.strokeStyle = palette.nodeHighlight;
             ctx.stroke();
           }
         }
@@ -577,9 +614,9 @@ export function MapView({
           ctx.font = `500 ${fontSize}px var(--font-geist-sans), system-ui, sans-serif`;
           ctx.textAlign = "center";
           ctx.textBaseline = "top";
-          if (dimmed) ctx.fillStyle = "rgba(255,255,255,0.18)";
-          else if (isHover) ctx.fillStyle = "#FFFFFF";
-          else ctx.fillStyle = "rgba(255,255,255,0.65)";
+          if (dimmed) ctx.fillStyle = palette.labelDimmed;
+          else if (isHover) ctx.fillStyle = palette.labelHover;
+          else ctx.fillStyle = palette.labelDefault;
           ctx.fillText(n.label, n.x, n.y + radius + 8 / t.k);
         }
       }
@@ -612,7 +649,7 @@ export function MapView({
 
     raf = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(raf);
-  }, []);
+  }, [palette]);
 
   /* ── Keep the sim gently alive so it drifts organically ── */
   useEffect(() => {
@@ -821,7 +858,7 @@ export function MapView({
       <div
         className="absolute top-4 left-4 z-10 rounded-xl px-4 py-3 flex flex-col gap-2 pointer-events-none"
         style={{
-          background: "rgba(10,10,10,0.85)",
+          background: "var(--syn-popover-bg-soft)",
           border: "1px solid var(--syn-border)",
           backdropFilter: "blur(8px)",
         }}
@@ -869,7 +906,7 @@ export function MapView({
         className="absolute top-0 left-0 z-20 pointer-events-none whitespace-nowrap max-w-[280px] overflow-hidden text-ellipsis rounded-md px-2 py-1 text-[11px] leading-tight transition-opacity duration-150"
         style={{
           opacity: 0,
-          background: "rgba(10,10,10,0.95)",
+          background: "var(--syn-popover-bg)",
           border: "1px solid var(--syn-border)",
           color: "var(--syn-dim)",
           backdropFilter: "blur(6px)",
@@ -890,7 +927,7 @@ export function MapView({
             <div
               className="absolute top-4 right-4 z-10 rounded-xl w-[300px] pointer-events-none overflow-hidden flex flex-col"
               style={{
-                background: "rgba(10,10,10,0.94)",
+                background: "var(--syn-popover-bg)",
                 border: `1px solid ${hoverCluster.color}55`,
                 backdropFilter: "blur(10px)",
                 maxHeight: "calc(100% - 32px)",
@@ -906,7 +943,7 @@ export function MapView({
                     className="w-2.5 h-2.5 rounded-full"
                     style={{ background: hoverCluster.color }}
                   />
-                  <p className="text-sm font-semibold text-white">
+                  <p className="text-sm font-semibold text-[var(--syn-white)]">
                     {hoverCluster.name}
                   </p>
                   <span
@@ -965,7 +1002,7 @@ export function MapView({
                             key={c.id}
                             className="flex items-start gap-2 px-2 py-1.5 rounded-md"
                             style={{
-                              background: "rgba(255,255,255,0.03)",
+                              background: "var(--syn-overlay-1)",
                               border: "1px solid var(--syn-border-subtle)",
                             }}
                           >
@@ -1015,7 +1052,7 @@ export function MapView({
                     </span>
                   </div>
                   <p
-                    className="text-[11px] leading-relaxed text-white"
+                    className="text-[11px] leading-relaxed text-[var(--syn-white)]"
                   >
                     {hoverCluster.nextStep}
                   </p>
@@ -1041,7 +1078,7 @@ export function MapView({
             <div
               className="absolute top-4 right-4 z-10 rounded-xl w-[300px] pointer-events-none overflow-hidden flex flex-col"
               style={{
-                background: "rgba(10,10,10,0.94)",
+                background: "var(--syn-popover-bg)",
                 border: `1px solid ${cluster?.color ?? "var(--syn-slate)"}55`,
                 backdropFilter: "blur(10px)",
                 maxHeight: "calc(100% - 32px)",
@@ -1055,13 +1092,13 @@ export function MapView({
                 <div
                   className="w-6 h-6 rounded-md flex items-center justify-center shrink-0"
                   style={{
-                    background: "rgba(255,255,255,0.05)",
+                    background: "var(--syn-overlay-2)",
                     border: "1px solid var(--syn-border)",
                   }}
                 >
                   <Icon className="w-3 h-3" style={{ color: "var(--syn-ash)" }} />
                 </div>
-                <p className="text-xs font-semibold text-white">Captured thought</p>
+                <p className="text-xs font-semibold text-[var(--syn-white)]">Captured thought</p>
                 {cluster && (
                   <span
                     className="ml-auto text-[10px] font-medium px-1.5 py-0.5 rounded-full"
@@ -1096,7 +1133,7 @@ export function MapView({
                 ) : hoverCapture.type === "link" && hoverCapture.linkTitle ? (
                   <div>
                     <p
-                      className="text-xs font-medium leading-snug text-white"
+                      className="text-xs font-medium leading-snug text-[var(--syn-white)]"
                     >
                       {hoverCapture.linkTitle}
                     </p>
@@ -1159,7 +1196,7 @@ export function MapView({
       <div
         className="absolute bottom-4 right-4 z-10 flex flex-col rounded-xl overflow-hidden"
         style={{
-          background: "rgba(10,10,10,0.9)",
+          background: "var(--syn-popover-bg-soft)",
           border: "1px solid var(--syn-border)",
           backdropFilter: "blur(8px)",
         }}
@@ -1167,7 +1204,7 @@ export function MapView({
         <button
           onClick={() => zoomBy(1.25)}
           aria-label="Zoom in"
-          className="w-9 h-9 flex items-center justify-center transition-colors cursor-pointer hover:bg-white/5"
+          className="w-9 h-9 flex items-center justify-center transition-colors cursor-pointer hover:bg-[var(--syn-overlay-2)]"
           style={{ color: "var(--syn-ash)" }}
           title="Zoom in"
         >
@@ -1184,7 +1221,7 @@ export function MapView({
         <button
           onClick={() => zoomBy(1 / 1.25)}
           aria-label="Zoom out"
-          className="w-9 h-9 flex items-center justify-center transition-colors cursor-pointer hover:bg-white/5"
+          className="w-9 h-9 flex items-center justify-center transition-colors cursor-pointer hover:bg-[var(--syn-overlay-2)]"
           style={{ color: "var(--syn-ash)" }}
           title="Zoom out"
         >
@@ -1194,7 +1231,7 @@ export function MapView({
         <button
           onClick={resetView}
           aria-label="Reset map view"
-          className="w-9 h-9 flex items-center justify-center transition-colors cursor-pointer hover:bg-white/5"
+          className="w-9 h-9 flex items-center justify-center transition-colors cursor-pointer hover:bg-[var(--syn-overlay-2)]"
           style={{ color: "var(--syn-ash)" }}
           title="Reset view"
         >

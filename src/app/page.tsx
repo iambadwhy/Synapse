@@ -404,7 +404,7 @@ export default function Home() {
                           background: clusterMap[selectedClusterId].color,
                         }}
                       />
-                      <span className="text-xs font-medium text-white flex-1 truncate">
+                      <span className="text-xs font-medium text-[var(--syn-white)] flex-1 truncate">
                         {clusterMap[selectedClusterId].name}
                       </span>
                       <button
@@ -433,7 +433,7 @@ export default function Home() {
                       style={{
                         background: hideCompleted
                           ? "rgba(16,185,129,0.12)"
-                          : "rgba(255,255,255,0.03)",
+                          : "var(--syn-overlay-1)",
                         border: hideCompleted
                           ? "1px solid rgba(16,185,129,0.35)"
                           : "1px solid var(--syn-border)",
@@ -458,7 +458,7 @@ export default function Home() {
                       aria-label="Sort captures"
                       className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-mono cursor-pointer"
                       style={{
-                        background: "rgba(255,255,255,0.03)",
+                        background: "var(--syn-overlay-1)",
                         border: "1px solid var(--syn-border)",
                         color: "var(--syn-slate)",
                       }}
@@ -494,7 +494,7 @@ export default function Home() {
                                   setSortMode(mode);
                                   setSortOpen(false);
                                 }}
-                                className="w-full flex items-center gap-2 px-3 py-2 text-left text-xs cursor-pointer hover:bg-[rgba(255,255,255,0.04)]"
+                                className="w-full flex items-center gap-2 px-3 py-2 text-left text-xs cursor-pointer hover:bg-[var(--syn-overlay-1)]"
                                 style={{ color: "var(--syn-ash)" }}
                               >
                                 <Check
@@ -654,7 +654,7 @@ export default function Home() {
                 onClick={() => setTweakMode(false)}
                 className="px-3 py-1.5 rounded-lg text-xs cursor-pointer"
                 style={{
-                  background: "rgba(255,255,255,0.05)",
+                  background: "var(--syn-overlay-2)",
                   color: "var(--syn-slate)",
                 }}
               >

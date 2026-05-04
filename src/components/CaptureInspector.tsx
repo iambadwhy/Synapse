@@ -74,7 +74,7 @@ export function CaptureInspector({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             className="fixed inset-0 z-40"
-            style={{ background: "rgba(0,0,0,0.35)" }}
+            style={{ background: "var(--syn-shadow-1)" }}
             onClick={onClose}
           />
 
@@ -100,7 +100,7 @@ export function CaptureInspector({
                 <div
                   className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
                   style={{
-                    background: "rgba(255,255,255,0.05)",
+                    background: "var(--syn-overlay-2)",
                     border: "1px solid var(--syn-border)",
                   }}
                 >
@@ -108,7 +108,7 @@ export function CaptureInspector({
                 </div>
                 <div className="min-w-0">
                   <div className="flex items-center gap-1.5">
-                    <p className="text-sm font-semibold text-white leading-tight">
+                    <p className="text-sm font-semibold text-[var(--syn-white)] leading-tight">
                       {TYPE_LABELS[capture.type] ?? "Capture"}
                     </p>
                     {completed && (
@@ -137,7 +137,7 @@ export function CaptureInspector({
                 onClick={onClose}
                 aria-label="Close capture inspector"
                 className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-colors shrink-0"
-                style={{ background: "rgba(255,255,255,0.05)", color: "var(--syn-slate)" }}
+                style={{ background: "var(--syn-overlay-2)", color: "var(--syn-slate)" }}
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -166,7 +166,7 @@ export function CaptureInspector({
                       >
                         Routed to
                       </p>
-                      <p className="text-xs font-medium text-white truncate">
+                      <p className="text-xs font-medium text-[var(--syn-white)] truncate">
                         {cluster.name}
                       </p>
                     </div>
@@ -191,7 +191,7 @@ export function CaptureInspector({
                   <div
                     className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg"
                     style={{
-                      background: "rgba(255,255,255,0.03)",
+                      background: "var(--syn-overlay-1)",
                       border: "1px solid var(--syn-border-subtle)",
                     }}
                   >
@@ -202,7 +202,7 @@ export function CaptureInspector({
                       {(capture.linkDomain ?? "?")[0]?.toUpperCase()}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="text-xs text-white truncate leading-snug">
+                      <p className="text-xs text-[var(--syn-white)] truncate leading-snug">
                         {capture.linkTitle}
                       </p>
                       <p
@@ -279,7 +279,7 @@ export function CaptureInspector({
                         key={tag}
                         className="text-[10px] font-mono px-2 py-0.5 rounded-full"
                         style={{
-                          background: "rgba(255,255,255,0.04)",
+                          background: "var(--syn-overlay-1)",
                           border: "1px solid var(--syn-border)",
                           color: "var(--syn-slate)",
                         }}
@@ -304,7 +304,7 @@ export function CaptureInspector({
                   className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-medium cursor-pointer transition-all"
                   style={{
                     background: completed
-                      ? "rgba(255,255,255,0.04)"
+                      ? "var(--syn-overlay-1)"
                       : "rgba(16,185,129,0.12)",
                     color: completed ? "var(--syn-ash)" : "var(--syn-mint)",
                     border: completed
@@ -338,7 +338,7 @@ export function CaptureInspector({
                   style={{
                     background: confirmDelete
                       ? "rgba(239,68,68,0.16)"
-                      : "rgba(255,255,255,0.04)",
+                      : "var(--syn-overlay-1)",
                     color: confirmDelete ? "#f87171" : "var(--syn-slate)",
                     border: confirmDelete
                       ? "1px solid rgba(239,68,68,0.4)"

@@ -217,7 +217,7 @@ export function CaptureBar({ onCapture }: CaptureBarProps) {
               aria-label="Capture text"
               className="capture-submit absolute right-0 bottom-0 w-10 h-10 rounded-xl flex items-center justify-center cursor-pointer disabled:cursor-not-allowed"
             >
-              <Send className="w-4 h-4 text-white" />
+              <Send className="w-4 h-4" />
             </button>
           </div>
         )}
@@ -242,7 +242,7 @@ export function CaptureBar({ onCapture }: CaptureBarProps) {
                 aria-label="Capture link"
                 className="capture-submit shrink-0 w-9 h-9 rounded-xl flex items-center justify-center cursor-pointer disabled:cursor-not-allowed"
               >
-                <Send className="w-3.5 h-3.5 text-white" />
+                <Send className="w-3.5 h-3.5" />
               </button>
             </div>
             {/* Link preview */}
@@ -276,7 +276,7 @@ export function CaptureBar({ onCapture }: CaptureBarProps) {
                 onClick={() => fileInputRef.current?.click()}
                 className="flex flex-col items-center justify-center gap-2 rounded-xl py-6 cursor-pointer transition-all"
                 style={{
-                  border: `1.5px dashed ${isDragging ? "var(--syn-indigo)" : "rgba(255,255,255,0.12)"}`,
+                  border: `1.5px dashed ${isDragging ? "var(--syn-indigo)" : "var(--syn-overlay-4)"}`,
                   background: isDragging ? "rgba(99,102,241,0.06)" : "transparent",
                 }}
               >
@@ -311,7 +311,7 @@ export function CaptureBar({ onCapture }: CaptureBarProps) {
                     onClick={resetAll}
                     aria-label="Remove image"
                     className="w-8 h-8 rounded-lg flex items-center justify-center cursor-pointer"
-                    style={{ background: "rgba(255,255,255,0.05)", color: "var(--syn-slate)" }}
+                    style={{ background: "var(--syn-overlay-2)", color: "var(--syn-slate)" }}
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
@@ -403,7 +403,7 @@ export function CaptureBar({ onCapture }: CaptureBarProps) {
                   <button
                     onClick={resetAll}
                     className="px-3 py-1.5 rounded-lg text-xs cursor-pointer"
-                    style={{ background: "rgba(255,255,255,0.05)", color: "var(--syn-slate)" }}
+                    style={{ background: "var(--syn-overlay-2)", color: "var(--syn-slate)" }}
                   >
                     Discard
                   </button>

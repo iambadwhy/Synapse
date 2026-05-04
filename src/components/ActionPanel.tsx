@@ -135,7 +135,7 @@ export function ActionPanel({
                   style={{ background: cluster.color }}
                 />
                 <div className="min-w-0">
-                  <p className="text-sm font-semibold text-white leading-tight truncate">
+                  <p className="text-sm font-semibold text-[var(--syn-white)] leading-tight truncate">
                     {cluster.name}
                   </p>
                   <p
@@ -151,7 +151,7 @@ export function ActionPanel({
                 aria-label="Close action panel"
                 className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-colors shrink-0"
                 style={{
-                  background: "rgba(255,255,255,0.05)",
+                  background: "var(--syn-overlay-2)",
                   color: "var(--syn-slate)",
                 }}
               >
@@ -213,7 +213,7 @@ export function ActionPanel({
                           key={c.id}
                           className="flex items-start gap-2.5 px-3 py-2.5 rounded-lg"
                           style={{
-                            background: "rgba(255,255,255,0.03)",
+                            background: "var(--syn-overlay-1)",
                             border: "1px solid var(--syn-border-subtle)",
                           }}
                         >
@@ -262,7 +262,7 @@ export function ActionPanel({
                     Suggested Next Step
                   </span>
                 </div>
-                <p className="text-sm leading-relaxed text-white">
+                <p className="text-sm leading-relaxed text-[var(--syn-white)]">
                   {cluster.nextStep}
                 </p>
               </div>
@@ -276,7 +276,7 @@ export function ActionPanel({
               <button
                 onClick={onAccept}
                 className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium cursor-pointer transition-all"
-                style={{ background: "var(--syn-mint)", color: "#0A0A0A" }}
+                style={{ background: "var(--syn-mint)", color: "var(--syn-bg)" }}
               >
                 <Check className="w-4 h-4" />
                 Add to Tasks
@@ -285,7 +285,7 @@ export function ActionPanel({
                 onClick={onTweak}
                 className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium cursor-pointer transition-all"
                 style={{
-                  background: "rgba(255,255,255,0.06)",
+                  background: "var(--syn-overlay-2)",
                   color: "var(--syn-ash)",
                   border: "1px solid var(--syn-border)",
                 }}

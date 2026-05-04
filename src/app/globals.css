@@ -29,7 +29,9 @@
 }
 
 /* ── Synapse design tokens ─────────────────────────── */
-:root {
+/* Default theme is dark. [data-theme="light"] overrides below. */
+:root,
+:root[data-theme="dark"] {
   --syn-bg: #0A0A0A;
   --syn-surface: #111111;
   --syn-surface-2: #161616;
@@ -41,6 +43,25 @@
   --syn-white: #FFFFFF;
   --syn-ash: #94A3B8;
   --syn-dim: #E2E8F0;
+
+  /* Semantic overlay tokens — flip in light mode */
+  --syn-overlay-1: rgba(255, 255, 255, 0.03);
+  --syn-overlay-2: rgba(255, 255, 255, 0.05);
+  --syn-overlay-3: rgba(255, 255, 255, 0.08);
+  --syn-overlay-4: rgba(255, 255, 255, 0.12);
+  --syn-overlay-strong: rgba(255, 255, 255, 0.18);
+
+  /* Shadows */
+  --syn-shadow-1: rgba(0, 0, 0, 0.35);
+  --syn-shadow-2: rgba(0, 0, 0, 0.55);
+
+  /* Translucent floating panels (popovers, top nav) */
+  --syn-popover-bg: rgba(10, 10, 10, 0.95);
+  --syn-popover-bg-soft: rgba(10, 10, 10, 0.85);
+
+  /* Map background dot color */
+  --syn-map-dot: rgba(255, 255, 255, 0.06);
+
   --radius: 0.625rem;
   --background: #0A0A0A;
   --foreground: #FFFFFF;
@@ -57,6 +78,51 @@
   --border: rgba(255, 255, 255, 0.07);
   --input: rgba(255, 255, 255, 0.08);
   --ring: rgba(99, 102, 241, 0.5);
+}
+
+/* ── Light theme ───────────────────────────────────── */
+:root[data-theme="light"] {
+  --syn-bg: #FAFAF9;
+  --syn-surface: #FFFFFF;
+  --syn-surface-2: #F4F4F5;
+  --syn-border: rgba(15, 23, 42, 0.10);
+  --syn-border-subtle: rgba(15, 23, 42, 0.06);
+  --syn-indigo: #4F46E5;
+  --syn-mint: #059669;
+  --syn-slate: #64748B;
+  --syn-white: #0F172A;          /* body text in light = dark slate */
+  --syn-ash: #475569;
+  --syn-dim: #1F2937;
+
+  --syn-overlay-1: rgba(15, 23, 42, 0.025);
+  --syn-overlay-2: rgba(15, 23, 42, 0.045);
+  --syn-overlay-3: rgba(15, 23, 42, 0.07);
+  --syn-overlay-4: rgba(15, 23, 42, 0.10);
+  --syn-overlay-strong: rgba(15, 23, 42, 0.16);
+
+  --syn-shadow-1: rgba(15, 23, 42, 0.06);
+  --syn-shadow-2: rgba(15, 23, 42, 0.12);
+
+  --syn-popover-bg: rgba(255, 255, 255, 0.96);
+  --syn-popover-bg-soft: rgba(255, 255, 255, 0.85);
+
+  --syn-map-dot: rgba(15, 23, 42, 0.08);
+
+  --background: #FAFAF9;
+  --foreground: #0F172A;
+  --card: #FFFFFF;
+  --card-foreground: #1F2937;
+  --popover: #FFFFFF;
+  --popover-foreground: #1F2937;
+  --primary: #4F46E5;
+  --primary-foreground: #FFFFFF;
+  --muted: #F4F4F5;
+  --muted-foreground: #64748B;
+  --accent: #EEF2FF;
+  --accent-foreground: #1F2937;
+  --border: rgba(15, 23, 42, 0.10);
+  --input: rgba(15, 23, 42, 0.10);
+  --ring: rgba(79, 70, 229, 0.4);
 }
 
 @layer base {
@@ -81,6 +147,11 @@
   }
 }
 
+/* ── Smooth theme transition ───────────────────────── */
+html {
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
 /* ── Custom scrollbar ──────────────────────────────── */
 ::-webkit-scrollbar {
   width: 4px;
@@ -89,11 +160,11 @@
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--syn-overlay-4);
   border-radius: 99px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.18);
+  background: var(--syn-overlay-strong);
 }
 
 /* ── Waveform animation for voice capture ──────────── */
@@ -142,7 +213,7 @@
 /* ── Map dot background pattern ────────────────────── */
 .map-bg {
   background-color: var(--syn-bg);
-  background-image: radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px);
+  background-image: radial-gradient(circle, var(--syn-map-dot) 1px, transparent 1px);
   background-size: 28px 28px;
 }
 
@@ -155,13 +226,13 @@
       rgba(99, 102, 241, 0.02) 45%,
       transparent 75%
     ),
-    linear-gradient(180deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0) 60%),
+    linear-gradient(180deg, var(--syn-overlay-1) 0%, transparent 60%),
     var(--syn-surface);
   border: 1px solid var(--syn-border);
   box-shadow:
     0 0 0 1px rgba(99, 102, 241, 0.04),
     0 8px 32px -12px rgba(99, 102, 241, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    inset 0 1px 0 var(--syn-overlay-1);
   transition: box-shadow 0.25s ease, border-color 0.25s ease;
 }
 .capture-bar:focus-within {
@@ -170,13 +241,14 @@
     0 0 0 1px rgba(99, 102, 241, 0.2),
     0 0 28px -4px rgba(99, 102, 241, 0.35),
     0 10px 40px -12px rgba(99, 102, 241, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    inset 0 1px 0 var(--syn-overlay-2);
 }
 
 /* Submit button — active state gets a warm glow */
 .capture-submit {
   background: var(--syn-indigo);
-  transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease;
+  color: #ffffff;
+  transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease;
 }
 .capture-submit:hover:not(:disabled) {
   transform: translateY(-1px);
@@ -188,6 +260,7 @@
     0 0 0 1px rgba(129, 132, 247, 0.3);
 }
 .capture-submit:disabled {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--syn-overlay-2);
+  color: var(--syn-slate);
   box-shadow: none;
 }

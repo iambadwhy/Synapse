@@ -159,7 +159,7 @@ export function ClusterCreator({
             transition={{ duration: 0.15 }}
             onClick={onClose}
             className="fixed inset-0 z-[70]"
-            style={{ background: "rgba(0,0,0,0.55)", backdropFilter: "blur(6px)" }}
+            style={{ background: "var(--syn-shadow-2)", backdropFilter: "blur(6px)" }}
           />
 
           <motion.div
@@ -189,7 +189,7 @@ export function ClusterCreator({
                 <Plus className="w-4 h-4 text-white" strokeWidth={2.5} />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-white leading-tight">
+                <p className="text-sm font-semibold text-[var(--syn-white)] leading-tight">
                   New {category}
                 </p>
                 <p
@@ -204,7 +204,7 @@ export function ClusterCreator({
                 aria-label="Close cluster creator"
                 className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer"
                 style={{
-                  background: "rgba(255,255,255,0.05)",
+                  background: "var(--syn-overlay-2)",
                   color: "var(--syn-slate)",
                 }}
               >
@@ -234,7 +234,7 @@ export function ClusterCreator({
                   placeholder="e.g. Side Quest — Rebrand"
                   className="w-full px-3 py-2 rounded-lg text-sm outline-none"
                   style={{
-                    background: "rgba(255,255,255,0.04)",
+                    background: "var(--syn-overlay-1)",
                     border: "1px solid var(--syn-border)",
                     color: "var(--syn-dim)",
                   }}
@@ -252,7 +252,7 @@ export function ClusterCreator({
                 <div
                   className="inline-flex rounded-lg p-0.5"
                   style={{
-                    background: "rgba(255,255,255,0.04)",
+                    background: "var(--syn-overlay-1)",
                     border: "1px solid var(--syn-border)",
                   }}
                 >
@@ -328,7 +328,7 @@ export function ClusterCreator({
                         style={{
                           background: active
                             ? `${color}22`
-                            : "rgba(255,255,255,0.03)",
+                            : "var(--syn-overlay-1)",
                           border: active
                             ? `1px solid ${color}66`
                             : "1px solid var(--syn-border-subtle)",
@@ -348,7 +348,7 @@ export function ClusterCreator({
               className="flex items-center justify-between gap-3 px-5 py-3"
               style={{
                 borderTop: "1px solid var(--syn-border-subtle)",
-                background: "rgba(255,255,255,0.02)",
+                background: "var(--syn-overlay-1)",
               }}
             >
               <span
@@ -362,7 +362,7 @@ export function ClusterCreator({
                   onClick={onClose}
                   className="px-3 py-1.5 rounded-lg text-xs cursor-pointer"
                   style={{
-                    background: "rgba(255,255,255,0.05)",
+                    background: "var(--syn-overlay-2)",
                     color: "var(--syn-slate)",
                   }}
                 >
