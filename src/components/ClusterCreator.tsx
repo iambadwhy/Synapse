@@ -267,7 +267,7 @@ export function ClusterCreator({
                           background: active
                             ? "rgba(99,102,241,0.16)"
                             : "transparent",
-                          color: active ? "#fff" : "var(--syn-slate)",
+                          color: active ? "var(--syn-white)" : "var(--syn-slate)",
                         }}
                       >
                         {cat}

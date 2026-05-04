@@ -197,7 +197,7 @@ export function CommandLauncher({
                       style={{
                         background: `${predictedColor}15`,
                         border: `1px solid ${predictedColor}30`,
-                        color: "#fff",
+                        color: "var(--syn-white)",
                       }}
                     >
                       <span

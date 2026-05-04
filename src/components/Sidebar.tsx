@@ -138,7 +138,7 @@ function ClusterRow({
         </span>
         <span
           className="text-xs font-medium flex-1 truncate"
-          style={{ color: selected ? "#fff" : "var(--syn-ash)" }}
+          style={{ color: selected ? "var(--syn-white)" : "var(--syn-ash)" }}
         >
           {cluster.name}
         </span>
@@ -311,14 +311,18 @@ export function Sidebar({
             className="w-3.5 h-3.5"
             style={{
               color:
-                selectedClusterId === null ? "#fff" : "var(--syn-slate)",
+                selectedClusterId === null
+                  ? "var(--syn-white)"
+                  : "var(--syn-slate)",
             }}
           />
           <span
             className="text-xs font-medium flex-1 truncate"
             style={{
               color:
-                selectedClusterId === null ? "#fff" : "var(--syn-ash)",
+                selectedClusterId === null
+                  ? "var(--syn-white)"
+                  : "var(--syn-ash)",
             }}
           >
             All Captures
@@ -330,7 +334,10 @@ export function Sidebar({
                 selectedClusterId === null
                   ? "var(--syn-overlay-4)"
                   : "var(--syn-overlay-2)",
-              color: selectedClusterId === null ? "#fff" : "var(--syn-slate)",
+              color:
+                selectedClusterId === null
+                  ? "var(--syn-white)"
+                  : "var(--syn-slate)",
             }}
           >
             {captures.filter((c) => c.status === "clustered").length}
