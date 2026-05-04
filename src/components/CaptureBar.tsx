@@ -225,7 +225,7 @@ export function CaptureBar({ onCapture }: CaptureBarProps) {
         {/* ── LINK ─── */}
         {mode === "link" && (
           <div className="flex flex-col gap-2">
-            <div className="flex gap-2 items-center">
+            <div className="flex gap-2 items-center min-h-[3.5rem]">
               <Link2 className="w-4 h-4 shrink-0" style={{ color: "var(--syn-slate)" }} />
               <input
                 type="url"
